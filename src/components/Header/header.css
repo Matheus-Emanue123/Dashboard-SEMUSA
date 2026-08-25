@@ -1,0 +1,103 @@
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left; 
+}
+
+
+.header-left {
+  display: flex;
+  align-items: stretch; 
+  gap: 12px;
+}
+
+.title-indicator {
+  width: 4px;
+  background-color: #00bcd4;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.header-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left; 
+}
+
+.header-title h1 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  text-align: left;
+  line-height: 1.2;
+}
+
+.header-title p {
+  margin: 2px 0 0 0;
+  font-size: 0.8rem;
+  color: #64748b;
+  text-align: left;
+  line-height: 1.2;
+}
+
+/* Lado Direito */
+.header-right {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 20px;
+}
+
+svg.header-icon {
+  width: 16px !important;
+  height: 16px !important;
+  min-width: 16px;
+  min-height: 16px;
+  color: #64748b;
+  display: inline-block;
+}
+
+.select-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.select-container svg.header-icon {
+  position: absolute;
+  left: 10px;
+  pointer-events: none;
+}
+
+.filter-select {
+  padding: 6px 12px 6px 32px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.header-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.header-info strong {
+  color: #0f172a;
+}
