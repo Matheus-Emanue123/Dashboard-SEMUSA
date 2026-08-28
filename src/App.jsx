@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import Sidebar from "./components/Sidebar/sidebar";
 import Header from "./components/Header/header";
+import Dashboard from "./pages/Dashboard/Dashboard";
 
 import "./App.css";
 
@@ -10,25 +11,18 @@ function App() {
 
   return (
     <div className="app-container">
-
-      {/* Sidebar */}
       <Sidebar
         isCollapsed={isCollapsed}
         setIsCollapsed={setIsCollapsed}
       />
 
-      {/* Área à direita da Sidebar */}
       <div className={`main-wrapper ${isCollapsed ? "collapsed" : ""}`}>
-
-        {/* Header */}
         <Header />
 
-        {/* Conteúdo principal */}
         <main className="content-body">
+          <Dashboard />
         </main>
-
       </div>
-
     </div>
   );
 }
