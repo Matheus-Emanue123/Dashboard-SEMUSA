@@ -203,9 +203,15 @@ html, body {
 }
 
 .main-wrapper {
-  margin-left: 250px; /* Mesma largura da Sidebar */
-  width: calc(100% - 250px); /* Ocupa exatamente o espaço restante */
+  margin-left: 250px;
+  width: calc(100% - 250px);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+.main-wrapper.collapsed {
+  margin-left: 70px;
+  width: calc(100% - 70px);
 }

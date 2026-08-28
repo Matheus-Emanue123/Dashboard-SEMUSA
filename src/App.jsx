@@ -1,23 +1,34 @@
+import { useState } from "react";
+
 import Sidebar from "./components/Sidebar/sidebar";
 import Header from "./components/Header/header";
+
 import "./App.css";
 
 function App() {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   return (
     <div className="app-container">
-      {/* Sua parte: Sidebar */}
-      <Sidebar />
+
+      {/* Sidebar */}
+      <Sidebar
+        isCollapsed={isCollapsed}
+        setIsCollapsed={setIsCollapsed}
+      />
 
       {/* Área à direita da Sidebar */}
-      <div className="main-wrapper">
-        {/* Sua parte: Header */}
+      <div className={`main-wrapper ${isCollapsed ? "collapsed" : ""}`}>
+
+        {/* Header */}
         <Header />
 
-        {/* Parte do Frontend 2 (Cards, Gráficos, etc.) */}
+        {/* Conteúdo principal */}
         <main className="content-body">
-          {/* O Frontend 2 vai inserir os componentes aqui */}
         </main>
+
       </div>
+
     </div>
   );
 }
