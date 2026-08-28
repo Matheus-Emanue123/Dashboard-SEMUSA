@@ -3,8 +3,26 @@ name: "CodeQL SAST Analysis"
 on:
   push:
     branches: [ "main", "master", "cybersecurity" ]
+    paths:
+      - '**/*.js'
+      - '**/*.jsx'
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '**/*.mjs'
+      - '**/*.cjs'
+      - '**/*.py'
+      - '.github/workflows/codeql-analysis.yml'
   pull_request:
     branches: [ "main", "master" ]
+    paths:
+      - '**/*.js'
+      - '**/*.jsx'
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '**/*.mjs'
+      - '**/*.cjs'
+      - '**/*.py'
+      - '.github/workflows/codeql-analysis.yml'
   schedule:
     # Executa toda segunda-feira às 06:00 UTC
     - cron: '0 6 * * 1'
@@ -31,13 +49,33 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Check for source files
+        id: check-files
+        run: |
+          if [ "${{ matrix.language }}" = "javascript-typescript" ]; then
+            count=$(find . -type f \( -name "*.js" -o -name "*.jsx" -o -name "*.ts" -o -name "*.tsx" -o -name "*.mjs" -o -name "*.cjs" \) -not -path "*/node_modules/*" -not -path "*/.git/*" | wc -l)
+          elif [ "${{ matrix.language }}" = "python" ]; then
+            count=$(find . -type f -name "*.py" -not -path "*/.venv/*" -not -path "*/venv/*" -not -path "*/.git/*" | wc -l)
+          else
+            count=0
+          fi
+          echo "Found $count files for ${{ matrix.language }}"
+          if [ "$count" -gt 0 ]; then
+            echo "has_files=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_files=false" >> "$GITHUB_OUTPUT"
+            echo "Nenhum arquivo de código encontrado para ${{ matrix.language }}. Pulando análise estática até que arquivos de código sejam adicionados."
+          fi
+
       - name: Initialize CodeQL
+        if: steps.check-files.outputs.has_files == 'true'
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
 
       - name: Perform CodeQL Analysis
+        if: steps.check-files.outputs.has_files == 'true'
         uses: github/codeql-action/analyze@v3
         with:
           category: "/language:${{matrix.language}}"
