@@ -1,4 +1,4 @@
-import { ACTIVE_SOURCES, QUALITY_NOTICES } from "../../data/overviewDashboard";
+import { ACTIVE_SOURCES, QUALITY_NOTICES } from "../../services/overviewDashboard";
 import SectionHeading from "./SectionHeading";
 
 function QualityNotices() {

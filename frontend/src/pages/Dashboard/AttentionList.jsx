@@ -1,4 +1,4 @@
-import { ATTENTION_INDICATORS, STATUS_STYLES } from "../../data/overviewDashboard";
+import { ATTENTION_INDICATORS, STATUS_STYLES } from "../../services/overviewDashboard";
 import SectionHeading from "./SectionHeading";
 
 function AttentionList() {

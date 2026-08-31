@@ -1,4 +1,4 @@
-import { LINE_SUMMARY_CARDS } from "../../data/overviewDashboard";
+import { LINE_SUMMARY_CARDS } from "../../services/overviewDashboard";
 
 function LineSummaryCards() {
   return (

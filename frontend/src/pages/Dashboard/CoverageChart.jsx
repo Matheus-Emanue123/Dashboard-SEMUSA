@@ -9,7 +9,7 @@ import {
   Legend,
 } from "recharts";
 
-import { COVERAGE_SERIES, COVERAGE_LINES } from "../../data/overviewDashboard";
+import { COVERAGE_SERIES, COVERAGE_LINES } from "../../services/overviewDashboard";
 import SectionHeading from "./SectionHeading";
 
 function CoverageChart() {

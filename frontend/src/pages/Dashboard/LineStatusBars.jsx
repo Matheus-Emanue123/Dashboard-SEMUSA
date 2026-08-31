@@ -1,4 +1,4 @@
-import { LINE_STATUS } from "../../data/overviewDashboard";
+import { LINE_STATUS } from "../../services/overviewDashboard";
 import SectionHeading from "./SectionHeading";
 
 const STATUS_SEGMENTS = [
