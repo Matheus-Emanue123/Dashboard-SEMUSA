@@ -6,10 +6,10 @@ import QualityNotices from "./QualityNotices";
 
 import "./Dashboard.css";
 
-function Dashboard() {
+function Dashboard({ onSelectLine }) {
   return (
     <div className="dashboard">
-      <LineSummaryCards />
+      <LineSummaryCards onSelectLine={onSelectLine} />
 
       <div className="dashboard__row dashboard__row--chart">
         <CoverageChart />

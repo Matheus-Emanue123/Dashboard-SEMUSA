@@ -30,7 +30,7 @@ export const LINE_SUMMARY_CARDS = [
   {
     id: "ods",
     label: "Ações em Saúde / ODS",
-    count: null,
+    count: 8,
     color: "#6b7280",
     background: "#f0f0f0",
   },
@@ -53,9 +53,59 @@ export const COVERAGE_LINES = [
 ];
 
 export const STATUS_STYLES = {
-  ok: { color: "#2bbac2", background: "#e8f8fa", symbol: "✓" },
-  alert: { color: "#d97706", background: "#fdf3e3", symbol: "!" },
-  worsening: { color: "#7c3aed", background: "#f3eeff", symbol: "↓" },
+  ok: { color: "#2bbac2", background: "#e8f8fa", symbol: "✓", label: "OK" },
+  alert: { color: "#d97706", background: "#fdf3e3", symbol: "!", label: "Alerta" },
+  improving: { color: "#16a34a", background: "#e6f4eb", symbol: "↑", label: "Melhora" },
+  stable: { color: "#6b7280", background: "#f3f4f6", symbol: "=", label: "Estável" },
+  worsening: { color: "#7c3aed", background: "#f3eeff", symbol: "↓", label: "Piora" },
+};
+
+export const STATUS_DESCRIPTIONS = {
+  ok: "Dentro do parâmetro",
+  alert: "Fora do parâmetro",
+  improving: "Tendência de melhora",
+  worsening: "Tendência de piora",
+  stable: "Estável",
+};
+
+export const LOCATION_OPTIONS = [
+  "Município de Divinópolis",
+  "Distrito Sanitário Norte",
+  "Distrito Sanitário Sul",
+  "UBS Centro",
+  "UBS Bom Pastor",
+  "UBS Niterói",
+];
+
+export const PAGE_META = {
+  "Visão Geral": {
+    title: "Visão Geral",
+    subtitle: "Resumo consolidado de todas as linhas de cuidado",
+  },
+  "Materno-Infantil": {
+    title: "Linha Materno-Infantil",
+    subtitle: "41 indicadores · Gestação → Infância",
+  },
+  "Câncer Colorretal": {
+    title: "Linha Câncer Colorretal",
+    subtitle: "21 indicadores · Rastreamento → Desfechos",
+  },
+  "Navegação do Cuidado": {
+    title: "Navegação do Cuidado",
+    subtitle: "18 indicadores · Fluxo e continuidade da rede",
+  },
+  "Conexão Colaborativa": {
+    title: "Conexão Colaborativa",
+    subtitle: "3 indicadores · Programas sociais e nutrição",
+  },
+  ODS: {
+    title: "Ações em Saúde / ODS",
+    subtitle: "8 indicadores · ODS 2, 3, 10 e 17",
+  },
+  Catálogo: {
+    title: "Catálogo de Indicadores",
+    subtitle: "Catálogo das fichas oficiais · filtro por linha e situação",
+  },
 };
 
 export const ATTENTION_INDICATORS = [

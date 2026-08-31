@@ -1,13 +1,19 @@
 import "./header.css";
 
-function Header() {
+function Header({
+  title = "Visão Geral",
+  subtitle = "Resumo consolidado de todas as linhas de cuidado",
+  locations = ["Município de Divinópolis"],
+  location = "Município de Divinópolis",
+  onLocationChange,
+}) {
   return (
     <header className="main-header">
       <div className="header-left">
         <div className="title-indicator"></div>
         <div className="header-title">
-          <h1>Visão Geral</h1>
-          <p>Resumo consolidado de todas as linhas de cuidado</p>
+          <h1>{title}</h1>
+          <p>{subtitle}</p>
         </div>
       </div>
 
@@ -17,8 +23,16 @@ function Header() {
             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
             <circle cx="12" cy="10" r="3" />
           </svg>
-          <select className="filter-select">
-            <option>Município de Divinópolis</option>
+          <select
+            className="filter-select"
+            value={location}
+            onChange={(event) => onLocationChange?.(event.target.value)}
+          >
+            {locations.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
           </select>
         </div>
 

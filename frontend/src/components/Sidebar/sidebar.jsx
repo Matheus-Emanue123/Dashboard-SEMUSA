@@ -11,8 +11,18 @@ import listIcon from "../../assets/icons/list.svg";
 import arrowLeftIcon from "../../assets/icons/chevron-left.svg";
 import logoSemusa from "../../assets/images/logo.png";
 
-function Sidebar({ isCollapsed, setIsCollapsed }) {
-  const [activeItem, setActiveItem] = useState("Catálogo");
+function Sidebar({ isCollapsed, setIsCollapsed, activeItem: activeItemProp, onSelectItem }) {
+  const [internalActive, setInternalActive] = useState("Catálogo");
+  const activeItem = activeItemProp ?? internalActive;
+
+  const selectItem = (itemId) => {
+    if (onSelectItem) {
+      onSelectItem(itemId);
+      return;
+    }
+
+    setInternalActive(itemId);
+  };
 
   const menuItems = [
     { id: "Visão Geral", label: "Visão Geral", type: "img", icon: gridIcon },
@@ -52,7 +62,7 @@ function Sidebar({ isCollapsed, setIsCollapsed }) {
               <button
                 key={item.id}
                 className={`sidebar-item ${isActive ? "active" : ""}`}
-                onClick={() => setActiveItem(item.id)}
+                onClick={() => selectItem(item.id)}
                 title={isCollapsed ? item.label : ""}
               >
                 {/* A faixa azul lateral agora é renderizada independente do menu estar recolhido ou expandido */}

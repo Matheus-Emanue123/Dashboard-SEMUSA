@@ -1,6 +1,7 @@
 import { LINE_SUMMARY_CARDS } from "../../services/overviewDashboard";
+import { CARD_TO_PAGE } from "../../services/indicators";
 
-function LineSummaryCards() {
+function LineSummaryCards({ onSelectLine }) {
   return (
     <section className="line-summary" aria-labelledby="line-summary-title">
       <p id="line-summary-title" className="line-summary__kicker">
@@ -18,6 +19,7 @@ function LineSummaryCards() {
               borderColor: `${card.color}40`,
               borderTopColor: card.color,
             }}
+            onClick={() => onSelectLine?.(CARD_TO_PAGE[card.id])}
           >
             <span className="line-summary-card__label" style={{ color: card.color }}>
               {card.label}

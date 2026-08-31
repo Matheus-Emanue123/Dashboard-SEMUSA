@@ -7,6 +7,7 @@
 .dashboard__row {
   display: grid;
   gap: 24px;
+  align-items: stretch;
 }
 
 .dashboard__row--chart {
@@ -48,16 +49,24 @@
   color: #5a7080;
 }
 
+.line-summary {
+  overflow-x: auto;
+}
+
 .line-summary__grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(148px, 1fr));
   gap: 12px;
+  min-width: 780px;
+  align-items: stretch;
 }
 
 .line-summary-card {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  height: 100%;
+  min-width: 0;
   text-align: left;
   padding: 16px;
   border: 1px solid;
@@ -107,6 +116,7 @@
 .attention-list {
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 .attention-list__items {
@@ -280,16 +290,14 @@
 
 @media (max-width: 1200px) {
   .dashboard__row--chart,
-  .dashboard__row--status,
-  .line-summary__grid {
+  .dashboard__row--status {
     grid-template-columns: 1fr 1fr;
   }
 }
 
 @media (max-width: 768px) {
   .dashboard__row--chart,
-  .dashboard__row--status,
-  .line-summary__grid {
+  .dashboard__row--status {
     grid-template-columns: 1fr;
   }
 }
