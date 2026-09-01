@@ -8,6 +8,8 @@ import {
   groupByStage,
   toggleStage,
 } from "../../services/indicatorStages";
+import ViewToggle from "../../components/ViewToggle/ViewToggle";
+import IndicatorGroupList from "../../components/IndicatorBrowser/IndicatorGroupList";
 import CatalogTable from "./CatalogTable";
 
 function Catalogo({ onOpenSheet }) {
@@ -15,6 +17,7 @@ function Catalogo({ onOpenSheet }) {
   const [statusFilter, setStatusFilter] = useState("all");
   const [groupFilter, setGroupFilter] = useState("all");
   const [stageFilter, setStageFilter] = useState("all");
+  const [view, setView] = useState("grid");
 
   const stagedCatalog = useMemo(() => decorateWithStage(CATALOG_INDICATORS), []);
   const stageDefs = getStageDefs(groupFilter);
@@ -94,7 +97,10 @@ function Catalogo({ onOpenSheet }) {
           ))}
         </div>
 
-        <span className="catalog__count">{filtered.length} indicadores</span>
+        <div className="view-toggle-wrap">
+          <ViewToggle view={view} onChange={setView} />
+          <span className="catalog__count">{filtered.length} indicadores</span>
+        </div>
       </div>
 
       <div className="catalog__groups" role="group" aria-label="Filtrar por linha de cuidado">
@@ -151,6 +157,8 @@ function Catalogo({ onOpenSheet }) {
 
       {filtered.length === 0 ? (
         <p className="indicator-browser__empty">Nenhum indicador para esta combinação de filtros.</p>
+      ) : view === "grid" ? (
+        <IndicatorGroupList grouped={groups} view="grid" onOpen={onOpenSheet} />
       ) : (
         <CatalogTable groups={groups} onOpen={onOpenSheet} />
       )}

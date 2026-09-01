@@ -219,6 +219,10 @@ button.journey-card:hover .journey-card__body {
 .indicator-card__name {
   margin: 0;
   flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   font-size: 0.875rem;
   font-weight: 600;
   color: #0f1f35;
@@ -665,6 +669,63 @@ button.network-card:disabled {
   color: #5a7080;
 }
 
+.view-toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.view-toggle-wrap .catalog__count {
+  margin-left: 0;
+}
+
+.view-toggle {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #d0dcea;
+  border-radius: 8px;
+  background: #f0f4f9;
+}
+
+.view-toggle__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #5a7080;
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.view-toggle__btn svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.view-toggle__btn:hover:not(.is-active) {
+  color: #0f1f35;
+}
+
+.view-toggle__btn.is-active {
+  background: #fff;
+  color: #0f1f35;
+  box-shadow: 0 1px 2px rgb(15 31 53 / 10%);
+}
+
+.view-toggle__btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
 .catalog__table-wrap {
   overflow-x: auto;
   background: #fff;
@@ -812,6 +873,10 @@ button.network-card:disabled {
 .indicator-group__list {
   display: flex;
   flex-direction: column;
+}
+
+.indicator-group__grid {
+  padding: 12px;
 }
 
 .indicator-row {
@@ -1073,6 +1138,15 @@ button.network-card:disabled {
 
   .indicator-row__meta {
     justify-content: space-between;
+  }
+
+  .indicator-browser__head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .view-toggle-wrap {
+    margin-left: 0;
   }
 
   .journey-strip,

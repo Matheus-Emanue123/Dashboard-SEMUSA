@@ -1,9 +1,10 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 import useIndicatorBrowser from "../../hooks/useIndicatorBrowser";
 import { STATUS_STYLES } from "../../services/overviewDashboard";
 import { decorateWithStage, getStageDefs, toggleStage } from "../../services/indicatorStages";
-import IndicatorCompactRow from "./IndicatorCompactRow";
+import ViewToggle from "../ViewToggle/ViewToggle";
+import IndicatorGroupList from "./IndicatorGroupList";
 
 function IndicatorBrowser({
   indicators,
@@ -16,6 +17,7 @@ function IndicatorBrowser({
   allGroupsLabel = "Todos os grupos",
   hint = "Filtre por grupo ou situação. Cada linha abre a ficha técnica.",
 }) {
+  const [view, setView] = useState("grid");
   const stages = stagesProp ?? getStageDefs(line);
   const decorated = useMemo(
     () => decorateWithStage(indicators, line),
@@ -35,7 +37,10 @@ function IndicatorBrowser({
           <p className="line-kicker">{title}</p>
           <p className="indicator-browser__hint">{hint}</p>
         </div>
-        <span className="catalog__count">{filtered.length} nesta vista</span>
+        <div className="view-toggle-wrap">
+          <ViewToggle view={view} onChange={setView} />
+          <span className="catalog__count">{filtered.length} nesta vista</span>
+        </div>
       </div>
 
       <div className="indicator-browser__toolbar">
@@ -104,26 +109,7 @@ function IndicatorBrowser({
       {grouped.length === 0 ? (
         <p className="indicator-browser__empty">Nenhum indicador para esta combinação de filtros.</p>
       ) : (
-        <div className="indicator-browser__groups">
-          {grouped.map((group) => (
-            <section key={group.id} className="indicator-group" aria-labelledby={`stage-${group.id}`}>
-              <header className="indicator-group__head">
-                <span className="indicator-group__dot" style={{ backgroundColor: group.color }} />
-                <h3 id={`stage-${group.id}`}>{group.label}</h3>
-                <span className="catalog__count">{group.items.length}</span>
-              </header>
-              <div className="indicator-group__list">
-                {group.items.map((indicator) => (
-                  <IndicatorCompactRow
-                    key={indicator.id}
-                    indicator={indicator}
-                    onOpen={onOpen}
-                  />
-                ))}
-              </div>
-            </section>
-          ))}
-        </div>
+        <IndicatorGroupList grouped={grouped} view={view} onOpen={onOpen} />
       )}
     </section>
   );
