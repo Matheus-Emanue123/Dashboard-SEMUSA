@@ -1,0 +1,27 @@
+.app-container {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.main-wrapper {
+  margin-left: 250px;
+  width: calc(100% - 250px);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background);
+  transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+.main-wrapper.collapsed {
+  margin-left: 70px;
+  width: calc(100% - 70px);
+}
+
+.content-body {
+  flex: 1;
+  overflow: auto;
+  padding: 20px;
+  min-width: 0;
+}
