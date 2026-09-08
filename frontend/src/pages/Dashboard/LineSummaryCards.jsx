@@ -1,7 +1,15 @@
-import { LINE_SUMMARY_CARDS } from "../../services/overviewDashboard";
+import { useEffect, useState } from "react";
+import { apiGet } from "../../services/api";
 import { CARD_TO_PAGE } from "../../services/indicators";
 
 function LineSummaryCards({ onSelectLine }) {
+  const [cards, setCards] = useState([]);
+
+useEffect(() => {
+  apiGet("linhas-cuidado")
+    .then(setCards)
+    .catch((err) => console.error("Erro ao carregar linhas de cuidado:", err));
+}, []);
   return (
     <section className="line-summary" aria-labelledby="line-summary-title">
       <p id="line-summary-title" className="line-summary__kicker">
@@ -9,7 +17,7 @@ function LineSummaryCards({ onSelectLine }) {
       </p>
 
       <div className="line-summary__grid">
-        {LINE_SUMMARY_CARDS.map((card) => (
+        {cards.map((card) => (
           <button
             key={card.id}
             type="button"
