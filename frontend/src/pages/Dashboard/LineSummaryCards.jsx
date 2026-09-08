@@ -1,3 +1,4 @@
+//OK
 import { useEffect, useState } from "react";
 import { apiGet } from "../../services/api";
 import { CARD_TO_PAGE } from "../../services/indicators";

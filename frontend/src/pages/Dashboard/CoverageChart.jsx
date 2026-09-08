@@ -1,3 +1,4 @@
+//OK
 import {
   ResponsiveContainer,
   AreaChart,
@@ -8,11 +9,26 @@ import {
   Tooltip,
   Legend,
 } from "recharts";
-
-import { COVERAGE_SERIES, COVERAGE_LINES } from "../../services/overviewDashboard";
+import { useEffect, useState } from "react";
+import { apiGet } from "../../services/api";
+//import { COVERAGE_SERIES, COVERAGE_LINES } from "../../services/overviewDashboard";
 import SectionHeading from "./SectionHeading";
 
 function CoverageChart() {
+  const [series, setSeries] = useState([]);
+  const [lines, setLines] = useState([]);
+
+  useEffect(() => {
+    apiGet("cobertura-mensal")
+      .then(setSeries)
+      .catch((err) => console.error("Erro ao carregar cobertura mensal:", err));
+  }, []);
+
+  useEffect(() => {
+    apiGet("cobertura-linhas")
+      .then(setLines)
+      .catch((err) => console.error("Erro ao carregar cobertura por linha:", err));
+  }, []);
   return (
     <article className="dashboard-panel">
       <SectionHeading
@@ -22,9 +38,9 @@ function CoverageChart() {
 
       <div className="coverage-chart">
         <ResponsiveContainer width="100%" height={200}>
-          <AreaChart data={COVERAGE_SERIES} margin={{ top: 4, right: 16, left: -20, bottom: 0 }}>
+          <AreaChart data={series} margin={{ top: 4, right: 16, left: -20, bottom: 0 }}>
             <defs>
-              {COVERAGE_LINES.map((line) => (
+              {lines.map((line) => (
                 <linearGradient key={line.gradientId} id={line.gradientId} x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor={line.color} stopOpacity={0.15} />
                   <stop offset="95%" stopColor={line.color} stopOpacity={0} />
@@ -39,7 +55,7 @@ function CoverageChart() {
               formatter={(value) => `${value}%`}
             />
             <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-            {COVERAGE_LINES.map((line) => (
+            {lines.map((line) => (
               <Area
                 key={line.dataKey}
                 type="monotone"
