@@ -5,11 +5,11 @@ import { CARD_TO_PAGE } from "../../services/indicators";
 function LineSummaryCards({ onSelectLine }) {
   const [cards, setCards] = useState([]);
 
-useEffect(() => {
-  apiGet("linhas-cuidado")
-    .then(setCards)
-    .catch((err) => console.error("Erro ao carregar linhas de cuidado:", err));
-}, []);
+  useEffect(() => {
+    apiGet("linhas-cuidado")
+      .then(setCards)   
+      .catch((err) => console.error("Erro ao carregar linhas de cuidado:", err));
+  }, []);
   return (
     <section className="line-summary" aria-labelledby="line-summary-title">
       <p id="line-summary-title" className="line-summary__kicker">

@@ -1,7 +1,17 @@
-import { ATTENTION_INDICATORS, STATUS_STYLES } from "../../services/overviewDashboard";
+// import { ATTENTION_INDICATORS, STATUS_STYLES } from "../../services/overviewDashboard";
+import { STATUS_STYLES } from "../../services/overviewDashboard";
+import { useEffect, useState } from "react";
+import { apiGet } from "../../services/api";
 import SectionHeading from "./SectionHeading";
 
 function AttentionList() {
+   const [cards, setCards] = useState([]);
+
+  useEffect(() => {
+    apiGet("indicadores-atencao")
+      .then(setCards)
+      .catch((err) => console.error("Erro ao carregar indicadores de atenção:", err));
+  }, []);
   return (
     <article className="dashboard-panel attention-list">
       <SectionHeading
@@ -10,7 +20,7 @@ function AttentionList() {
       />
 
       <ul className="attention-list__items">
-        {ATTENTION_INDICATORS.map((item) => {
+        {cards.map((item) => {
           const status = STATUS_STYLES[item.status];
 
           return (

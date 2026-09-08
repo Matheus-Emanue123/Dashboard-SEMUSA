@@ -1,4 +1,6 @@
-import { LINE_STATUS } from "../../services/overviewDashboard";
+// import { LINE_STATUS } from "../../services/overviewDashboard";
+import { useEffect, useState } from "react";
+import { apiGet } from "../../services/api";
 import SectionHeading from "./SectionHeading";
 
 const STATUS_SEGMENTS = [
@@ -13,6 +15,13 @@ function getSegmentWidth(line, key) {
 }
 
 function LineStatusBars() {
+  const [cards, setCards] = useState([]);
+
+  useEffect(() => {
+    apiGet("status-linhas")
+      .then(setCards)   
+      .catch((err) => console.error("Erro ao carregar linhas de status:", err));
+  }, []);
   return (
     <article className="dashboard-panel">
       <SectionHeading
@@ -21,7 +30,7 @@ function LineStatusBars() {
       />
 
       <div className="status-bars">
-        {LINE_STATUS.map((line) => (
+        {cards.map((line) => (
           <div key={line.linha} className="status-bars__row">
             <p className="status-bars__label">{line.linha}</p>
             <div className="status-bars__track">
