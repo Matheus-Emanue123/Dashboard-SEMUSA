@@ -1,0 +1,225 @@
+.diagnostico-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.line-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 2px solid #e2e8f0;
+  padding-bottom: 2px;
+  margin-top: 16px;
+  overflow-x: auto;
+}
+
+.line-tab {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.line-tab:hover {
+  color: #1e293b;
+}
+
+.line-tab.is-active {
+  color: #1d4e8a;
+  border-bottom-color: #1d4e8a;
+  font-weight: 700;
+}
+
+.diagnostico-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.diagnostico-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background-color: #1d4e8a15;
+  color: #1d4e8a;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.diagnostico-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 1100px) {
+  .diagnostico-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .diagnostico-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.diagnostico-kpi-card {
+  background: #ffffff;
+  border: 1px solid #d0dcea;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.diagnostico-kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 31, 53, 0.08);
+}
+
+.diagnostico-kpi-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.diagnostico-kpi-card__code {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #1d4e8a;
+  background: #1d4e8a15;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.diagnostico-kpi-card__title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 6px 0 0;
+  line-height: 1.3;
+}
+
+.diagnostico-kpi-card__value-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.diagnostico-kpi-card__value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.diagnostico-kpi-card__trend {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #059669;
+}
+
+.diagnostico-kpi-card__trend.is-alert {
+  color: #d97706;
+}
+
+.diagnostico-kpi-card__meta {
+  font-size: 0.75rem;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.diagnostico-kpi-card__btn {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1d4e8a;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.diagnostico-kpi-card__btn:hover {
+  color: #0f3563;
+}
+
+.diagnostico-compliance {
+  background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
+  border: 1px solid #bae6fd;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.diagnostico-compliance__icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.diagnostico-compliance__content h4 {
+  margin: 0 0 4px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #0369a1;
+}
+
+.diagnostico-compliance__content p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #334155;
+  line-height: 1.4;
+}
+
+.diagnostico-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  margin-top: 12px;
+}
+
+.diagnostico-table th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #64748b;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.diagnostico-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+}
+
+.diagnostico-table tbody tr:hover {
+  background: #f8fafc;
+}

@@ -98,10 +98,23 @@ export const CANCER_FICHA_INDICATORS = [
     period: "Dez/2024", source: "PEC / AAE", frequency: "Anual",
   }),
   ficha("cc04", "Tempo médio estimado para acesso à consulta especializada", CANCER, {
-    unit: "dias", frequency: "Anual", source: "SISREG",
+    value: "24", unit: "dias", parameter: "≤ 30 dias", status: "ok", trend: "↓ -4 dias",
+    period: "Jan/2025", source: "SISREG", frequency: "Semestral",
+    definition: "Tempo decorrido entre o encaminhamento da atenção primária e a realização da consulta com especialista (proctologia/gastroenterologia).",
+    formula: "Soma dos dias de espera / Total de consultas especializadas realizadas",
   }),
-  ficha("cc05", "Tempo médio estimado para resultado da biópsia", CANCER, { unit: "dias", source: "Sistemas hospitalares" }),
-  ficha("cc06", "Proporção de pessoas com consulta no hospital do câncer em até 30 dias após suspeita", CANCER, { unit: "%", source: "UNACOM" }),
+  ficha("cc05", "Tempo médio estimado para resultado da biópsia", CANCER, {
+    value: "18", unit: "dias", parameter: "≤ 15 dias", status: "alert", trend: "↑ +3 dias",
+    period: "Jan/2025", source: "Sistemas hospitalares", frequency: "Mensal",
+    definition: "Tempo entre a realização da colonoscopia com biópsia e a disponibilização do laudo anatomopatológico.",
+    formula: "Soma dos dias até liberação do laudo / Total de biópsias laudadas",
+  }),
+  ficha("cc06", "Proporção de pessoas com consulta no hospital do câncer em até 30 dias após suspeita", CANCER, {
+    value: "78,2%", unit: "%", parameter: "≥ 85%", status: "alert", trend: "↑ +2,5pp",
+    period: "Jan/2025", source: "UNACOM", frequency: "Trimestral",
+    definition: "Proporção de pessoas com suspeita forte ou confirmação diagnóstica que iniciam consulta em centro especializado de oncologia em até 30 dias (Lei 13.896/2019).",
+    formula: "Pessoas atendidas em ≤ 30 dias / Total de encaminhamentos com suspeita/confirmação × 100",
+  }),
   ficha("cc07", "Proporção de pessoas com tratamento iniciado em até 60 dias após diagnóstico", CANCER, {
     value: "72,3%", unit: "%", parameter: "≥ 80%", status: "alert", trend: "↑ +4,1pp",
     period: "Dez/2024", source: "SIH/SUS + Hospital", frequency: "Semestral",

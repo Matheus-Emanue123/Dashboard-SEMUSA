@@ -184,3 +184,63 @@ export const ODS_PANELS = [
     ],
   },
 ];
+
+export const DIAGNOSTICO_KPIS = [
+  {
+    id: "cc03",
+    label: "Colonoscopias Realizadas",
+    value: "61,5%",
+    meta: "Meta: ≥ 80%",
+    status: "alert",
+    trend: "↑ +8,3pp",
+    source: "PEC / AAE",
+    description: "Após FIT positivo ou indicação clínica",
+  },
+  {
+    id: "cc04",
+    label: "Tempo até Consulta Especializada",
+    value: "24 dias",
+    meta: "Meta: ≤ 30 dias",
+    status: "ok",
+    trend: "↓ -4 dias",
+    source: "SISREG",
+    description: "Encaminhamento APS até proctologia",
+  },
+  {
+    id: "cc05",
+    label: "Tempo até Laudo da Biópsia",
+    value: "18 dias",
+    meta: "Meta: ≤ 15 dias",
+    status: "alert",
+    trend: "↑ +3 dias",
+    source: "Sistemas Hospitalares",
+    description: "Coleta histopatológica até resultado",
+  },
+  {
+    id: "cc06",
+    label: "Consulta Hospitalar em ≤ 30 dias",
+    value: "78,2%",
+    meta: "Meta: ≥ 85%",
+    status: "alert",
+    trend: "↑ +2,5pp",
+    source: "UNACOM",
+    description: "Casos confirmados em centro de oncologia",
+  },
+];
+
+export const DIAGNOSTICO_WAIT_TIMES = [
+  { mes: "Ago/24", consulta: 34, biopsia: 22, metaConsulta: 30, metaBiopsia: 15 },
+  { mes: "Set/24", consulta: 31, biopsia: 20, metaConsulta: 30, metaBiopsia: 15 },
+  { mes: "Out/24", consulta: 29, biopsia: 19, metaConsulta: 30, metaBiopsia: 15 },
+  { mes: "Nov/24", consulta: 28, biopsia: 17, metaConsulta: 30, metaBiopsia: 15 },
+  { mes: "Dez/24", consulta: 26, biopsia: 19, metaConsulta: 30, metaBiopsia: 15 },
+  { mes: "Jan/25", consulta: 24, biopsia: 18, metaConsulta: 30, metaBiopsia: 15 },
+];
+
+export const DIAGNOSTICO_PROVIDERS = [
+  { unidade: "Compl. São João de Deus", realizadas: 184, pendentes: 48, taxa: 79 },
+  { unidade: "CIS-URG Oeste", realizadas: 96, pendentes: 38, taxa: 71 },
+  { unidade: "Hospital São Judas", realizadas: 62, pendentes: 42, taxa: 59 },
+  { unidade: "Policlínica Central", realizadas: 45, pendentes: 31, taxa: 59 },
+];
+
