@@ -1,4 +1,6 @@
-import { useMemo, useState } from "react";
+//OK - precisa testar 
+import { useEffect, useMemo, useState } from "react";
+import { apiGet } from "../../services/api";
 import {
   ResponsiveContainer,
   BarChart,
@@ -18,13 +20,6 @@ import JourneyStrip from "../../components/JourneyStrip/JourneyStrip";
 import IndicatorGrid from "../../components/IndicatorGrid/IndicatorGrid";
 import IndicatorBrowser from "../../components/IndicatorBrowser/IndicatorBrowser";
 import {
-  MATERNO_JOURNEY,
-  MATERNO_STAGE_COVERAGE,
-  MATERNO_UBS_COVERAGE,
-} from "../../services/linePages";
-import { MATERNO_INDICATORS } from "../../services/indicators";
-import { MATERNO_FICHA_INDICATORS } from "../../services/catalogIndicators";
-import {
   LINE_MATERNO,
   countByStage,
   decorateWithStage,
@@ -38,12 +33,63 @@ const STATUS_PIE = [
 ];
 
 function MaternoInfantil({ onOpenSheet }) {
+  const [journey, setJourney] = useState([]);
+  const [stageCoverage, setStageCoverage] = useState([]);
+  const [ubsCoverage, setUbsCoverage] = useState([]);
+  const [allIndicators, setAllIndicators] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [stage, setStage] = useState("all");
+
+  useEffect(() => {
+    Promise.all([
+      apiGet("materno/jornada"),
+      apiGet("materno/cobertura-etapas"),
+      apiGet("materno/cobertura-ubs"),
+      apiGet("indicadores"),
+    ])
+      .then(([journeyData, stageCoverageData, ubsCoverageData, indicatorsData]) => {
+        setJourney(journeyData);
+        setStageCoverage(stageCoverageData);
+        setUbsCoverage(ubsCoverageData);
+        setAllIndicators(indicatorsData);
+      })
+      .catch((err) => {
+        console.error("Erro ao carregar a página Materno-Infantil:", err);
+        setError(err);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const maternalIndicators = useMemo(
+    () => allIndicators.filter((indicator) => indicator.line === LINE_MATERNO),
+    [allIndicators],
+  );
+  const highlightIndicators = useMemo(
+    () => maternalIndicators.filter((indicator) => indicator.isHighlightCard),
+    [maternalIndicators],
+  );
+  const catalogIndicators = useMemo(
+    () => maternalIndicators.filter((indicator) => indicator.isCatalogItem),
+    [maternalIndicators],
+  );
   const staged = useMemo(
-    () => decorateWithStage(MATERNO_FICHA_INDICATORS, LINE_MATERNO),
-    [],
+    () => decorateWithStage(catalogIndicators, LINE_MATERNO),
+    [catalogIndicators],
   );
   const stageCounts = useMemo(() => countByStage(staged), [staged]);
+
+  if (loading) {
+    return <p className="indicator-browser__empty">Carregando dados materno-infantis...</p>;
+  }
+
+  if (error) {
+    return (
+      <p className="indicator-browser__empty">
+        Não foi possível carregar os dados materno-infantis.
+      </p>
+    );
+  }
 
   return (
     <div className="line-page">
@@ -53,7 +99,7 @@ function MaternoInfantil({ onOpenSheet }) {
           subtitle="Os indicadores percorrem gestação, parto, puerpério, recém-nascido e infância — 41 indicadores previstos"
         />
         <JourneyStrip
-          steps={MATERNO_JOURNEY}
+          steps={journey}
           numbered
           activeStep={stage}
           onSelectStep={(next) => setStage((current) => toggleStage(current, next))}
@@ -66,14 +112,14 @@ function MaternoInfantil({ onOpenSheet }) {
           <SectionHeading title="Cobertura por etapa (%)" subtitle="Jan/2025 · meta ≥ 80%" />
           <div className="chart-box">
             <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={MATERNO_STAGE_COVERAGE} layout="vertical" margin={{ top: 0, right: 20, left: 10, bottom: 0 }}>
+              <BarChart data={stageCoverage} layout="vertical" margin={{ top: 0, right: 20, left: 10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e8eef5" horizontal={false} />
                 <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 10, fill: "#5a7080" }} axisLine={false} tickLine={false} />
                 <YAxis type="category" dataKey="etapa" tick={{ fontSize: 10, fill: "#5a7080" }} width={90} axisLine={false} tickLine={false} />
                 <Tooltip formatter={(value) => `${value}%`} contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #d0dcea" }} />
                 <Bar dataKey="valor" radius={[0, 4, 4, 0]}>
-                  {MATERNO_STAGE_COVERAGE.map((item, index) => (
-                    <Cell key={item.etapa} fill={MATERNO_JOURNEY[index].color} />
+                  {stageCoverage.map((item, index) => (
+                    <Cell key={item.etapa} fill={journey[index]?.color ?? "#2bbac2"} />
                   ))}
                 </Bar>
               </BarChart>
@@ -85,7 +131,7 @@ function MaternoInfantil({ onOpenSheet }) {
           <SectionHeading title="Cobertura pré-natal por UBS (%)" subtitle="Início no 1º trimestre · Jan/2025" />
           <div className="chart-box">
             <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={MATERNO_UBS_COVERAGE} margin={{ top: 0, right: 8, left: -20, bottom: 0 }}>
+              <BarChart data={ubsCoverage} margin={{ top: 0, right: 8, left: -20, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e8eef5" />
                 <XAxis dataKey="ubs" tick={{ fontSize: 9, fill: "#5a7080" }} axisLine={false} tickLine={false} />
                 <YAxis domain={[60, 100]} tick={{ fontSize: 10, fill: "#5a7080" }} axisLine={false} tickLine={false} />
@@ -116,11 +162,11 @@ function MaternoInfantil({ onOpenSheet }) {
         </article>
       </div>
 
-      <IndicatorGrid indicators={MATERNO_INDICATORS} onOpen={onOpenSheet} />
+      <IndicatorGrid indicators={highlightIndicators} onOpen={onOpenSheet} />
 
       <IndicatorBrowser
         line={LINE_MATERNO}
-        indicators={MATERNO_FICHA_INDICATORS}
+        indicators={catalogIndicators}
         stage={stage}
         onStageChange={setStage}
         onOpen={onOpenSheet}

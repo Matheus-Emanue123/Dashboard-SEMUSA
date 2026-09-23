@@ -6,7 +6,7 @@ import { apiGet } from "../../services/api";
 import SectionHeading from "./SectionHeading";
 
 function AttentionList() {
-   const [cards, setCards] = useState([]);
+  const [cards, setCards] = useState([]);
 
   useEffect(() => {
     apiGet("indicadores-atencao")
