@@ -126,6 +126,8 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: 480px;
+  overflow-y: auto;
 }
 
 .attention-item {
@@ -133,6 +135,7 @@
   align-items: flex-start;
   gap: 8px;
   padding: 10px;
+  border: 1px solid;
   border-radius: 8px;
 }
 
@@ -161,6 +164,31 @@
   margin: 2px 0 0;
   font-size: 0.75rem;
   color: #5a7080;
+}
+
+.attention-item__comparison,
+.attention-item__trend {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.attention-item__comparison {
+  color: #33485f;
+}
+
+.attention-item__trend {
+  font-weight: 600;
+}
+
+.attention-list__empty {
+  margin-top: 12px;
+  padding: 16px;
+  border-radius: 8px;
+  background: #f0f4f9;
+  color: #5a7080;
+  font-size: 0.875rem;
+  text-align: center;
 }
 
 .status-bars {
