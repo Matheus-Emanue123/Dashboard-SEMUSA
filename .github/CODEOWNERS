@@ -1,0 +1,67 @@
+# Dashboard SEMUSA - CODEOWNERS
+#
+# Responsáveis por revisão de alterações nas principais áreas do projeto.
+# A última regra correspondente ao arquivo é a que prevalece.
+
+# ============================================================
+# Fallback geral
+# ============================================================
+
+* @PedroAugusto08 @samuelsilvg @Matheus-Emanue123
+
+
+# ============================================================
+# Backend
+# ============================================================
+
+/backend/ @Matheus-Emanue123 @joaofranciscoteles
+
+
+# ============================================================
+# Frontend
+# ============================================================
+
+/frontend/ @KairoHenrique @Jade-Souza
+
+
+# ============================================================
+# Banco de dados
+# ============================================================
+
+/database/ @PedroAugusto08 @Matheus-Emanue123 @joaofranciscoteles
+
+
+# ============================================================
+# Infraestrutura
+# ============================================================
+
+/.github/ @PedroAugusto08 @Ak4ai
+
+/.env.example @PedroAugusto08 @Ak4ai
+/.gitignore @PedroAugusto08 @Ak4ai
+
+
+# ============================================================
+# Cybersegurança
+# ============================================================
+
+/.github/workflows/ @Ak4ai @PedroAugusto08
+
+/.github/dependabot.yml @Ak4ai
+/.github/CODEOWNERS @PedroAugusto08 @samuelsilvg @Ak4ai
+
+
+# ============================================================
+# Documentação
+# ============================================================
+
+/docs/ @samuelsilvg @PedroAugusto08
+
+
+# ============================================================
+# Arquivos de governança do projeto
+# ============================================================
+
+/Contributing.md @samuelsilvg @PedroAugusto08
+/LICENSE @samuelsilvg @PedroAugusto08
+/Duvidas.md @samuelsilvg
