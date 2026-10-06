@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { STATUS_DESCRIPTIONS, STATUS_STYLES } from "../../services/overviewDashboard";
 import "./sidebar.css";
 
 // Importações dos ícones (.svg)
@@ -86,26 +87,17 @@ function Sidebar({ isCollapsed, setIsCollapsed, activeItem: activeItemProp, onSe
           <div className="sidebar-legend">
             <span className="legend-title">LEGENDA</span>
             <ul className="legend-list">
-              <li className="legend-item success">
-                <span className="legend-badge">✓</span>
-                <span>Dentro do parâmetro</span>
-              </li>
-              <li className="legend-item warning">
-                <span className="legend-badge">!</span>
-                <span>Fora do parâmetro</span>
-              </li>
-              <li className="legend-item info">
-                <span className="legend-badge">↑</span>
-                <span>Tendência de melhora</span>
-              </li>
-              <li className="legend-item neutral">
-                <span className="legend-badge">=</span>
-                <span>Estável</span>
-              </li>
-              <li className="legend-item danger">
-                <span className="legend-badge">↓</span>
-                <span>Tendência de piora</span>
-              </li>
+              {Object.entries(STATUS_STYLES).map(([key, style]) => (
+                <li className="legend-item" key={key}>
+                  <span
+                    className="legend-badge"
+                    style={{ color: style.color, backgroundColor: style.background }}
+                  >
+                    {style.symbol}
+                  </span>
+                  <span>{STATUS_DESCRIPTIONS[key]}</span>
+                </li>
+              ))}
             </ul>
           </div>
         )}

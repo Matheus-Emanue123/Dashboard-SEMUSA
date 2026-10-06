@@ -88,7 +88,7 @@ function Catalogo({ onOpenSheet }) {
               style={
                 statusFilter === key
                   ? { backgroundColor: style.color, color: "#fff", borderColor: style.color }
-                  : { color: style.color, borderColor: `${style.color}50`, backgroundColor: style.background }
+                  : { color: style.color, borderColor: style.border, backgroundColor: style.background }
               }
               onClick={() => setStatusFilter(key)}
             >

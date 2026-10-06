@@ -13,6 +13,7 @@ import {
   Cell,
 } from "recharts";
 
+import { STATUS_STYLES } from "../../services/overviewDashboard";
 import SectionHeading from "../Dashboard/SectionHeading";
 import JourneyStrip from "../../components/JourneyStrip/JourneyStrip";
 import IndicatorGrid from "../../components/IndicatorGrid/IndicatorGrid";
@@ -32,9 +33,9 @@ import {
 } from "../../services/indicatorStages";
 
 const STATUS_PIE = [
-  { name: "OK", value: 2, color: "#2bbac2" },
-  { name: "Alerta", value: 3, color: "#d97706" },
-  { name: "Piora", value: 1, color: "#7c3aed" },
+  { name: STATUS_STYLES.ok.label, value: 2, color: STATUS_STYLES.ok.color },
+  { name: STATUS_STYLES.alert.label, value: 3, color: STATUS_STYLES.alert.color },
+  { name: STATUS_STYLES.worsening.label, value: 1, color: STATUS_STYLES.worsening.color },
 ];
 
 function MaternoInfantil({ onOpenSheet }) {
