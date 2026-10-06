@@ -143,39 +143,6 @@ export const PAGE_META = {
   },
 };
 
-export const ATTENTION_INDICATORS = [
-  {
-    label: "Sífilis congênita em tendência de piora",
-    line: "Materno-Infantil",
-    status: "worsening",
-  },
-  {
-    label: "FIT: realização 25pp abaixo da meta (34,7%)",
-    line: "Câncer Colorretal",
-    status: "alert",
-  },
-  {
-    label: "Cobertura vacinal DPT: 91,2% vs meta ≥ 95%",
-    line: "Materno-Infantil",
-    status: "alert",
-  },
-  {
-    label: "Abandono de tratamento crônicas: 18,4%",
-    line: "Navegação do Cuidado",
-    status: "worsening",
-  },
-  {
-    label: "Tempo médio de espera especialidade: 47 dias",
-    line: "Navegação do Cuidado",
-    status: "alert",
-  },
-  {
-    label: "Risco nutricional infantil em piora",
-    line: "Conexão Colaborativa",
-    status: "worsening",
-  },
-];
-
 export const LINE_STATUS = [
   { linha: "Materno-Infantil", ok: 3, alert: 2, worsening: 1, color: "#2bbac2" },
   { linha: "Câncer Colorretal", ok: 1, alert: 3, worsening: 1, color: "#1d4e8a" },

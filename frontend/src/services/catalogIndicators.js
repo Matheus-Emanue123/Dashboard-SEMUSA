@@ -8,6 +8,7 @@ function ficha(id, name, line, extra = {}) {
     value: extra.value ?? "—",
     unit: extra.unit ?? "",
     parameter: extra.parameter ?? "A definir",
+    parameterStatus: extra.parameterStatus ?? "unevaluated",
     status: extra.status ?? "stable",
     trend: extra.trend ?? "—",
     period: extra.period ?? "—",
@@ -26,19 +27,19 @@ const ODS = "Ações em Saúde / ODS";
 
 export const MATERNO_FICHA_INDICATORS = [
   ficha("mi01", "Proporção de crianças com vacinas registradas com todas as doses recomendadas", MATERNO, {
-    value: "91,2%", unit: "%", parameter: "≥ 95%", status: "alert", trend: "↓ -1,8pp", period: "Dez/2024",
+    value: "91,2%", unit: "%", parameter: "≥ 95%", parameterStatus: "outside", status: "alert", trend: "↓ -1,8pp", period: "Dez/2024",
     source: "SI-PNI / SIPNI", frequency: "Quadrimestral",
   }),
   ficha("mi02", "Taxa de incidência de sífilis gestacional", MATERNO, {
     unit: "por 1.000 NV", parameter: "A definir", frequency: "Anual", source: "SINAN / SINASC",
   }),
   ficha("mi03", "Taxa de incidência de sífilis congênita", MATERNO, {
-    value: "4,1", unit: "por 1.000 NV", parameter: "< 0,5", status: "worsening", trend: "↓ +0,6",
+    value: "4,1", unit: "por 1.000 NV", parameter: "< 0,5", parameterStatus: "outside", status: "worsening", trend: "↓ +0,6",
     period: "Dez/2024", source: "SINAN", frequency: "Anual",
   }),
   ficha("mi04", "Número de casos novos de AIDS em menores de 1 ano", MATERNO, { unit: "casos", frequency: "Anual", source: "SINAN" }),
   ficha("mi05", "Taxa de mortalidade infantil (TMI)", MATERNO, {
-    value: "8,3", unit: "por 1.000 NV", parameter: "< 10", status: "ok", trend: "↑ -0,7",
+    value: "8,3", unit: "por 1.000 NV", parameter: "< 10", parameterStatus: "within", status: "ok", trend: "↑ -0,7",
     period: "2024", source: "SIM / SINASC", frequency: "Anual",
   }),
   ficha("mi06", "Razão de mortalidade materna (RMM)", MATERNO, { unit: "por 100 mil NV", frequency: "Anual", source: "SIM / SINASC" }),
@@ -49,7 +50,7 @@ export const MATERNO_FICHA_INDICATORS = [
   ficha("mi11", "Proporção de crianças com 1 ou mais internações no último ano", MATERNO, { unit: "%", source: "SIH/SUS" }),
   ficha("mi12", "Percentual de internações por condições sensíveis à APS (ICSAP)", MATERNO, { unit: "%", source: "SIH/SUS" }),
   ficha("mi13", "Proporção de gestantes com pelo menos 7 consultas de pré-natal", MATERNO, {
-    value: "5,2", unit: "consultas", parameter: "≥ 6", status: "alert", trend: "↔ -0,1",
+    value: "5,2", unit: "consultas", parameter: "≥ 6", parameterStatus: "outside", status: "alert", trend: "↔ -0,1",
     period: "Jan/2025", source: "e-SUS / PEC", frequency: "Mensal",
   }),
   ficha("mi14", "Proporção de gestantes com pelo menos 7 registros de pressão arterial", MATERNO, { unit: "%", source: "e-SUS / PEC" }),
@@ -67,13 +68,13 @@ export const MATERNO_FICHA_INDICATORS = [
   ficha("mi26", "Proporção de pessoas avaliadas sobre insegurança alimentar", MATERNO, { unit: "%", source: "SISVAN" }),
   ficha("mi27", "Proporção de preenchimento do formulário de marcadores de consumo alimentar", MATERNO, { unit: "%", source: "SISVAN" }),
   ficha("mi28", "Proporção de crianças com aleitamento materno exclusivo", MATERNO, {
-    value: "43,7%", unit: "%", parameter: "≥ 50%", status: "alert", trend: "↑ +2,1pp",
+    value: "43,7%", unit: "%", parameter: "≥ 50%", parameterStatus: "outside", status: "alert", trend: "↑ +2,1pp",
     period: "Dez/2024", source: "e-SUS / PEC", frequency: "Semestral",
   }),
   ficha("mi29", "Proporção de pelo menos 2 visitas ACS/TACS (30 dias e 6 meses de vida)", MATERNO, { unit: "%", source: "e-SUS / PEC" }),
   ficha("mi30", "Proporção de visitas do ACS entre o 2º e o 6º mês de vida", MATERNO, { unit: "%", source: "e-SUS / PEC" }),
   ficha("mi31", "Proporção de consultas entre a 1ª e a 12ª semana de gestação", MATERNO, {
-    value: "78,4%", unit: "%", parameter: "≥ 70%", status: "ok", trend: "↑ +3,2pp",
+    value: "78,4%", unit: "%", parameter: "≥ 70%", parameterStatus: "within", status: "ok", trend: "↑ +3,2pp",
     period: "Jan/2025", source: "e-SUS / PEC", frequency: "Mensal",
   }),
   ficha("mi32", "Tempo de espera porta-médico hospitalar", MATERNO, { unit: "minutos", source: "Sistemas hospitalares" }),
@@ -90,11 +91,11 @@ export const CANCER_FICHA_INDICATORS = [
     unit: "%", parameter: "> 75%", frequency: "Semestral", source: "e-SUS / PEC",
   }),
   ficha("cc02", "Proporção de teste imunohistoquímico fecal (FIT) positivos", CANCER, {
-    value: "34,7%", unit: "%", parameter: "≥ 60%", status: "alert", trend: "↑ +5,1pp",
+    value: "34,7%", unit: "%", parameter: "≥ 60%", parameterStatus: "outside", status: "alert", trend: "↑ +5,1pp",
     period: "Jan/2025", source: "e-SUS / PEC", frequency: "Anual",
   }),
   ficha("cc03", "Proporção de colonoscopias realizadas", CANCER, {
-    value: "61,5%", unit: "%", parameter: "≥ 80%", status: "alert", trend: "↑ +8,3pp",
+    value: "61,5%", unit: "%", parameter: "≥ 80%", parameterStatus: "outside", status: "alert", trend: "↑ +8,3pp",
     period: "Dez/2024", source: "PEC / AAE", frequency: "Anual",
   }),
   ficha("cc04", "Tempo médio estimado para acesso à consulta especializada", CANCER, {
@@ -103,7 +104,7 @@ export const CANCER_FICHA_INDICATORS = [
   ficha("cc05", "Tempo médio estimado para resultado da biópsia", CANCER, { unit: "dias", source: "Sistemas hospitalares" }),
   ficha("cc06", "Proporção de pessoas com consulta no hospital do câncer em até 30 dias após suspeita", CANCER, { unit: "%", source: "UNACOM" }),
   ficha("cc07", "Proporção de pessoas com tratamento iniciado em até 60 dias após diagnóstico", CANCER, {
-    value: "72,3%", unit: "%", parameter: "≥ 80%", status: "alert", trend: "↑ +4,1pp",
+    value: "72,3%", unit: "%", parameter: "≥ 80%", parameterStatus: "outside", status: "alert", trend: "↑ +4,1pp",
     period: "Dez/2024", source: "SIH/SUS + Hospital", frequency: "Semestral",
   }),
   ficha("cc08", "Incidência de pessoas internadas durante o tratamento", CANCER, { unit: "casos", source: "UNACOM" }),
@@ -114,7 +115,7 @@ export const CANCER_FICHA_INDICATORS = [
   ficha("cc13", "Taxa de incidência de câncer colorretal", CANCER, { unit: "por 100 mil", source: "RHC / SIM" }),
   ficha("cc14", "Anos potenciais de vida perdidos (APVP) por câncer colorretal", CANCER, { unit: "anos", source: "SIM" }),
   ficha("cc15", "Taxa de sobrevivência de pessoas com CCR após 3 anos de diagnóstico", CANCER, {
-    value: "67,2%", unit: "%", parameter: "≥ 70%", status: "alert", trend: "↑ +1,4pp",
+    value: "67,2%", unit: "%", parameter: "≥ 70%", parameterStatus: "outside", status: "alert", trend: "↑ +1,4pp",
     period: "2022-2024", source: "SIH/SUS + RHC", frequency: "Anual",
   }),
   ficha("cc16", "Taxa de sobrevivência de pessoas com CCR após 5 anos de diagnóstico", CANCER, { unit: "%", source: "SIH/SUS + RHC" }),
@@ -131,6 +132,7 @@ export const ODS_CATALOG_INDICATORS = ODS_PANELS.flatMap((panel) =>
         status: item.status,
         trend: item.trend,
         parameter: item.meta,
+        parameterStatus: item.parameterStatus ?? "unevaluated",
         source: "Layout ilustrativo ODS",
         frequency: "A definir",
       },
@@ -154,3 +156,7 @@ export const CATALOG_INDICATORS = [
   ...CONEXAO_INDICATORS,
   ...ODS_CATALOG_INDICATORS,
 ];
+
+export const ALERT_INDICATORS = CATALOG_INDICATORS.filter(
+  (indicator) => indicator.parameterStatus === "outside",
+);
