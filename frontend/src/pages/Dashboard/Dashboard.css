@@ -110,7 +110,100 @@
 .coverage-chart {
   margin-top: 16px;
   width: 100%;
-  height: 200px;
+  height: 220px;
+}
+
+.evolution-chart__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.evolution-chart__controls {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) auto;
+  align-items: end;
+  gap: 8px 12px;
+  min-width: min(100%, 340px);
+}
+
+.evolution-chart__indicator-label {
+  grid-column: 1 / -1;
+  color: #5a7080;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.evolution-chart__indicator {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  padding: 7px 30px 7px 10px;
+  border: 1px solid #d0dcea;
+  border-radius: 6px;
+  background: #fff;
+  color: #0f1f35;
+  font: inherit;
+  font-size: 0.75rem;
+}
+
+.evolution-chart__granularity {
+  display: flex;
+  min-height: 38px;
+  padding: 3px;
+  border: 1px solid #d0dcea;
+  border-radius: 7px;
+  background: #f4f7fa;
+}
+
+.evolution-chart__granularity-button {
+  min-height: 30px;
+  padding: 5px 9px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #52677b;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.evolution-chart__granularity-button:hover {
+  color: #0f1f35;
+}
+
+.evolution-chart__granularity-button:focus-visible,
+.evolution-chart__indicator:focus-visible {
+  outline: 2px solid #1d8fa8;
+  outline-offset: 2px;
+}
+
+.evolution-chart__granularity-button.is-active {
+  background: #fff;
+  color: #0f1f35;
+  box-shadow: 0 1px 3px rgb(15 31 53 / 14%);
+}
+
+.evolution-chart__period-note {
+  margin: 12px 0 0;
+  color: #5a7080;
+  font-size: 0.7rem;
+}
+
+.evolution-chart__empty {
+  display: grid;
+  min-height: 220px;
+  margin: 16px 0 0;
+  padding: 20px;
+  place-items: center;
+  border-radius: 8px;
+  background: #f4f7fa;
+  color: #5a7080;
+  font-size: 0.875rem;
+  text-align: center;
 }
 
 .attention-list {
@@ -321,11 +414,32 @@
   .dashboard__row--status {
     grid-template-columns: 1fr 1fr;
   }
+
+  .evolution-chart__header {
+    flex-direction: column;
+  }
+
+  .evolution-chart__controls {
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .evolution-chart__indicator-label {
+    grid-column: auto;
+  }
+
+  .evolution-chart__granularity-button {
+    flex: 1;
+  }
 }
 
 @media (max-width: 768px) {
   .dashboard__row--chart,
   .dashboard__row--status {
     grid-template-columns: 1fr;
+  }
+
+  .evolution-chart__granularity {
+    justify-content: stretch;
   }
 }
