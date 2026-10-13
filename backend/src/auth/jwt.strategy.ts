@@ -3,6 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { passportJwtSecret } from 'jwks-rsa';
+import { Role, ROLES } from './roles.decorator';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -33,17 +34,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('Token inválido ou expirado');
     }
 
-    // O Supabase armazena permissões em app_metadata ou user_metadata
-    const role =
-      payload.app_metadata?.role ||
-      payload.user_metadata?.role ||
-      payload.user_role ||
-      'VISUALIZADOR_UNIDADE';
+    // só o app_metadata vale: o user_metadata pode ser alterado pelo próprio usuário
+    const claimed = payload.app_metadata?.role;
+    const role: Role = ROLES.includes(claimed) ? claimed : 'VISUALIZADOR_UNIDADE';
 
     return {
       userId: payload.sub,
       email: payload.email,
-      role: role,
+      role,
       metadata: payload.user_metadata || {},
     };
   }

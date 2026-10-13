@@ -9,6 +9,7 @@ const AuthContext = createContext({
   loading: true,
   login: async () => {},
   logout: async () => {},
+  hasRole: () => false,
 });
 
 export function AuthProvider({ children }) {
@@ -17,15 +18,9 @@ export function AuthProvider({ children }) {
   const [role, setRole] = useState('VISUALIZADOR_UNIDADE');
   const [loading, setLoading] = useState(true);
 
-  const extractRole = (userData) => {
-    if (!userData) return 'VISUALIZADOR_UNIDADE';
-    return (
-      userData.app_metadata?.role ||
-      userData.user_metadata?.role ||
-      userData.user_role ||
-      'VISUALIZADOR_UNIDADE'
-    );
-  };
+  // só o app_metadata vale: o user_metadata pode ser alterado pelo próprio usuário
+  const extractRole = (userData) =>
+    userData?.app_metadata?.role || 'VISUALIZADOR_UNIDADE';
 
   useEffect(() => {
     // Busca a sessão ativa no carregamento
@@ -65,6 +60,8 @@ export function AuthProvider({ children }) {
     if (error) throw error;
   };
 
+  const hasRole = (...roles) => roles.includes(role);
+
   return (
     <AuthContext.Provider
       value={{
@@ -75,6 +72,7 @@ export function AuthProvider({ children }) {
         loading,
         login,
         logout,
+        hasRole,
       }}
     >
       {children}
