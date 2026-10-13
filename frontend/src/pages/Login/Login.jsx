@@ -200,7 +200,7 @@ export default function Login() {
 
         <div className="login-footer">
           <p>
-            🔒 Dados protegidos e monitorados em conformidade com a <strong>LGPD (Lei nº 13.709/2018)</strong>.
+            Dados protegidos e monitorados em conformidade com a <strong>LGPD (Lei nº 13.709/2018)</strong>.
           </p>
         </div>
       </div>
