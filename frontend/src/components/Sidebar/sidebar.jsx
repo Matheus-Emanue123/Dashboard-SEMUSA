@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { STATUS_DESCRIPTIONS, STATUS_STYLES } from "../../services/overviewDashboard";
+import { useAuth } from "../../contexts/AuthContext";
 import "./sidebar.css";
 
 // Importações dos ícones (.svg)
@@ -13,6 +14,7 @@ import arrowLeftIcon from "../../assets/icons/chevron-left.svg";
 import logoSemusa from "../../assets/images/logo.png";
 
 function Sidebar({ isCollapsed, setIsCollapsed, activeItem: activeItemProp, onSelectItem }) {
+  const { user, role, logout } = useAuth();
   const [internalActive, setInternalActive] = useState("Catálogo");
   const activeItem = activeItemProp ?? internalActive;
 
@@ -99,6 +101,53 @@ function Sidebar({ isCollapsed, setIsCollapsed, activeItem: activeItemProp, onSe
                 </li>
               ))}
             </ul>
+          </div>
+        )}
+
+        {/* Perfil do Usuário e Botão Sair */}
+        {user && (
+          <div className={`sidebar-user ${isCollapsed ? "collapsed" : ""}`}>
+            {!isCollapsed ? (
+              <>
+                <div className="user-info">
+                  <div className="user-avatar">
+                    {user.email ? user.email.charAt(0).toUpperCase() : "U"}
+                  </div>
+                  <div className="user-details">
+                    <span className="user-email" title={user.email}>
+                      {user.email}
+                    </span>
+                    <span className="user-role-badge">
+                      {role || "VISUALIZADOR"}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  className="user-logout-btn"
+                  onClick={logout}
+                  title="Encerrar sessão"
+                  type="button"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                  <span>Sair</span>
+                </button>
+              </>
+            ) : (
+              <button
+                className="user-logout-btn collapsed"
+                onClick={logout}
+                title={`Logado como: ${user.email} (${role}) · Clique para sair`}
+                type="button"
+              >
+                <div className="user-avatar compact">
+                  {user.email ? user.email.charAt(0).toUpperCase() : "U"}
+                </div>
+              </button>
+            )}
           </div>
         )}
 
