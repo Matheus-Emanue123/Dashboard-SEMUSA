@@ -1,118 +1,24 @@
 .login-page {
-  position: relative;
   display: flex;
   min-height: 100vh;
   width: 100%;
   align-items: center;
   justify-content: center;
-  background-color: #060e18;
-  overflow: hidden;
+  /* cruzinhas da saúde no fundo, com tamanho, giro e opacidade variados */
+  background-color: #0f2744;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cg fill='none' stroke='%231d4e8a' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M-7 0h14M0-7v14' transform='translate(34 40) rotate(12) scale(1.0)' opacity='.55'/%3E%3Cpath d='M-7 0h14M0-7v14' transform='translate(120 26) rotate(-20) scale(.6)' opacity='.35'/%3E%3Cpath d='M-7 0h14M0-7v14' transform='translate(205 58) rotate(18) scale(1.4)' opacity='.7'/%3E%3Cpath d='M-7 0h14M0-7v14' transform='translate(78 112) rotate(-15) scale(.8)' opacity='.3'/%3E%3Cpath d='M-7 0h14M0-7v14' transform='translate(160 128) rotate(-8) scale(1.1)' opacity='.6'/%3E%3Cpath d='M-7 0h14M0-7v14' transform='translate(228 170) rotate(18) scale(.7)' opacity='.4'/%3E%3Cpath d='M-7 0h14M0-7v14' transform='translate(40 190) rotate(-18) scale(1.5)' opacity='.5'/%3E%3Cpath d='M-7 0h14M0-7v14' transform='translate(118 214) rotate(8) scale(.9)' opacity='.75'/%3E%3Cpath d='M-7 0h14M0-7v14' transform='translate(190 232) rotate(22) scale(.6)' opacity='.3'/%3E%3C/g%3E%3C/svg%3E");
   padding: 24px;
-}
-
-/* grade de fundo */
-.login-grid-pattern {
-  position: absolute;
-  inset: 0;
-  background-image: 
-    linear-gradient(to right, rgba(0, 188, 212, 0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 188, 212, 0.06) 1px, transparent 1px);
-  background-size: 40px 40px;
-  mask-image: radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 0) 80%);
-  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 1) 35%, rgba(0, 0, 0, 0) 80%);
-  pointer-events: none;
-  z-index: 1;
-}
-
-/* luzes de fundo animadas */
-.login-bg-glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(85px);
-  pointer-events: none;
-  z-index: 0;
-  will-change: transform;
-}
-
-.login-bg-glow-1 {
-  width: 440px;
-  height: 440px;
-  background: radial-gradient(circle, rgba(0, 188, 212, 0.35) 0%, rgba(0, 188, 212, 0) 70%);
-  top: -80px;
-  left: 12%;
-  animation: floatGlow1 16s ease-in-out infinite alternate;
-}
-
-.login-bg-glow-2 {
-  width: 520px;
-  height: 520px;
-  background: radial-gradient(circle, rgba(29, 78, 138, 0.5) 0%, rgba(29, 78, 138, 0) 70%);
-  bottom: -120px;
-  right: 12%;
-  animation: floatGlow2 20s ease-in-out infinite alternate;
-}
-
-.login-bg-glow-3 {
-  width: 320px;
-  height: 320px;
-  background: radial-gradient(circle, rgba(2, 132, 199, 0.3) 0%, rgba(2, 132, 199, 0) 70%);
-  top: 45%;
-  left: 62%;
-  animation: floatGlow3 14s ease-in-out infinite alternate;
-}
-
-@keyframes floatGlow1 {
-  0% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(60px, 50px, 0) scale(1.1);
-  }
-  100% {
-    transform: translate3d(-30px, 90px, 0) scale(0.95);
-  }
-}
-
-@keyframes floatGlow2 {
-  0% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(-70px, -50px, 0) scale(1.08);
-  }
-  100% {
-    transform: translate3d(40px, -30px, 0) scale(0.92);
-  }
-}
-
-@keyframes floatGlow3 {
-  0% {
-    transform: translate3d(0, 0, 0) scale(0.9);
-  }
-  50% {
-    transform: translate3d(-50px, 40px, 0) scale(1.1);
-  }
-  100% {
-    transform: translate3d(50px, -40px, 0) scale(1);
-  }
 }
 
 /* card (mesma cor da sidebar) */
 .login-card {
-  position: relative;
-  z-index: 10;
   width: 100%;
   max-width: 480px;
-  background-color: rgba(11, 25, 44, 0.94);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 16px;
-  border: 1px solid rgba(0, 188, 212, 0.2);
+  background-color: #0b192c;
+  border-radius: 12px;
+  border: 1px solid #1a3356;
   padding: 38px 34px;
-  box-shadow: 
-    0 25px 50px -12px rgba(0, 0, 0, 0.7),
-    0 0 35px -8px rgba(0, 188, 212, 0.12);
-  animation: fadeInLogin 0.35s ease-out;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
 }
 
 .login-header {

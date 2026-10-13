@@ -33,11 +33,6 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      <div className="login-bg-glow login-bg-glow-1" aria-hidden="true" />
-      <div className="login-bg-glow login-bg-glow-2" aria-hidden="true" />
-      <div className="login-bg-glow login-bg-glow-3" aria-hidden="true" />
-      <div className="login-grid-pattern" aria-hidden="true" />
-
       <div className="login-card">
         <div className="login-header">
           <div className="login-logo-container">
