@@ -1,6 +1,7 @@
 export const MATERNO_INDICATORS = [
   {
     id: "pn1",
+    parameterStatus: "within",
     name: "Início do pré-natal no 1º trimestre",
     value: "78,4%",
     unit: "%",
@@ -17,6 +18,7 @@ export const MATERNO_INDICATORS = [
   },
   {
     id: "pn2",
+    parameterStatus: "outside",
     name: "Média de consultas pré-natal",
     value: "5,2",
     unit: "consultas",
@@ -33,6 +35,7 @@ export const MATERNO_INDICATORS = [
   },
   {
     id: "vac1",
+    parameterStatus: "outside",
     name: "Cobertura vacinal infantil (DPT)",
     value: "91,2%",
     unit: "%",
@@ -49,6 +52,7 @@ export const MATERNO_INDICATORS = [
   },
   {
     id: "mort1",
+    parameterStatus: "within",
     name: "Taxa de mortalidade infantil",
     value: "8,3",
     unit: "por 1.000 NV",
@@ -65,6 +69,7 @@ export const MATERNO_INDICATORS = [
   },
   {
     id: "sif1",
+    parameterStatus: "outside",
     name: "Sífilis congênita (taxa)",
     value: "4,1",
     unit: "por 1.000 NV",
@@ -81,6 +86,7 @@ export const MATERNO_INDICATORS = [
   },
   {
     id: "aleit",
+    parameterStatus: "outside",
     name: "Aleitamento materno exclusivo (6 meses)",
     value: "43,7%",
     unit: "%",
@@ -100,6 +106,7 @@ export const MATERNO_INDICATORS = [
 export const CANCER_INDICATORS = [
   {
     id: "fit1",
+    parameterStatus: "outside",
     name: "Realização do FIT (rastreamento)",
     value: "34,7%",
     unit: "%",
@@ -116,6 +123,7 @@ export const CANCER_INDICATORS = [
   },
   {
     id: "col1",
+    parameterStatus: "outside",
     name: "Colonoscopia após FIT positivo",
     value: "61,5%",
     unit: "%",
@@ -132,6 +140,7 @@ export const CANCER_INDICATORS = [
   },
   {
     id: "trat1",
+    parameterStatus: "outside",
     name: "Início do tratamento em até 60 dias",
     value: "72,3%",
     unit: "%",
@@ -148,6 +157,7 @@ export const CANCER_INDICATORS = [
   },
   {
     id: "sobr",
+    parameterStatus: "outside",
     name: "Sobrevida em 3 anos",
     value: "67,2%",
     unit: "%",
@@ -164,6 +174,7 @@ export const CANCER_INDICATORS = [
   },
   {
     id: "enc1",
+    parameterStatus: "outside",
     name: "Encaminhamento para investigação (FIT+)",
     value: "88,4%",
     unit: "%",
@@ -183,6 +194,7 @@ export const CANCER_INDICATORS = [
 export const NAVEGACAO_INDICATORS = [
   {
     id: "nav1",
+    parameterStatus: "outside",
     name: "Taxa de referência com retorno",
     value: "64,3%",
     unit: "%",
@@ -199,6 +211,7 @@ export const NAVEGACAO_INDICATORS = [
   },
   {
     id: "nav2",
+    parameterStatus: "outside",
     name: "Tempo médio de espera para especialidade",
     value: "47",
     unit: "dias",
@@ -215,6 +228,7 @@ export const NAVEGACAO_INDICATORS = [
   },
   {
     id: "nav3",
+    parameterStatus: "outside",
     name: "Resolubilidade na atenção primária",
     value: "82,1%",
     unit: "%",
@@ -231,6 +245,7 @@ export const NAVEGACAO_INDICATORS = [
   },
   {
     id: "nav4",
+    parameterStatus: "outside",
     name: "Cobertura de equipes de SF",
     value: "78,6%",
     unit: "%",
@@ -247,6 +262,7 @@ export const NAVEGACAO_INDICATORS = [
   },
   {
     id: "nav5",
+    parameterStatus: "outside",
     name: "Abandono de tratamento (crônicas)",
     value: "18,4%",
     unit: "%",
@@ -266,6 +282,7 @@ export const NAVEGACAO_INDICATORS = [
 export const CONEXAO_INDICATORS = [
   {
     id: "con1",
+    parameterStatus: "outside",
     name: "Cobertura do Programa Bolsa Família (saúde)",
     value: "89,3%",
     unit: "%",
@@ -282,6 +299,7 @@ export const CONEXAO_INDICATORS = [
   },
   {
     id: "con2",
+    parameterStatus: "outside",
     name: "Adesão ao rastreamento (Bolsa Família)",
     value: "41,2%",
     unit: "%",
@@ -298,6 +316,7 @@ export const CONEXAO_INDICATORS = [
   },
   {
     id: "con3",
+    parameterStatus: "outside",
     name: "Vulnerabilidade social em risco nutricional",
     value: "14,7%",
     unit: "%",
