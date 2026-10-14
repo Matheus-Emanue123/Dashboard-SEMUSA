@@ -3,6 +3,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { MaternoImportacaoModule } from './materno-importacao/materno-importacao.module';
 import { AuthModule } from './auth/auth.module';
 import { AuditModule } from './audit/audit.module';
 
@@ -17,6 +18,7 @@ import { AuditModule } from './audit/audit.module';
     AuthModule,
     AuditModule,
     DashboardModule,
+    MaternoImportacaoModule
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
