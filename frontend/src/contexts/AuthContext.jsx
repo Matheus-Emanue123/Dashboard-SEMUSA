@@ -1,0 +1,85 @@
+import { createContext, useContext, useEffect, useState } from 'react';
+import { supabase } from '../services/supabaseClient';
+
+const AuthContext = createContext({
+  user: null,
+  session: null,
+  role: 'VISUALIZADOR_UNIDADE',
+  unidade: null,
+  token: null,
+  loading: true,
+  login: async () => {},
+  logout: async () => {},
+  hasRole: () => false,
+});
+
+export function AuthProvider({ children }) {
+  const [session, setSession] = useState(null);
+  const [user, setUser] = useState(null);
+  const [role, setRole] = useState('VISUALIZADOR_UNIDADE');
+  const [loading, setLoading] = useState(true);
+
+  // só o app_metadata vale: o user_metadata pode ser alterado pelo próprio usuário
+  const extractRole = (userData) =>
+    userData?.app_metadata?.role || 'VISUALIZADOR_UNIDADE';
+
+  useEffect(() => {
+    // Busca a sessão ativa no carregamento
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setRole(extractRole(session?.user));
+      setLoading(false);
+    });
+
+    // Escuta mudanças no estado de autenticação (login, logout, refresh)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setRole(extractRole(session?.user));
+      setLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const login = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+    return data;
+  };
+
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+  };
+
+  const hasRole = (...roles) => roles.includes(role);
+
+  return (
+    <AuthContext.Provider
+      value={{
+        session,
+        user,
+        role,
+        unidade: user?.app_metadata?.unidade_saude ?? null,
+        token: session?.access_token || null,
+        loading,
+        login,
+        logout,
+        hasRole,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export const useAuth = () => useContext(AuthContext);

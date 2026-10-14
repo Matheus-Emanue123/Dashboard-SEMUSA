@@ -46,13 +46,42 @@ function MaternoInfantil({ onOpenSheet }) {
   );
   const stageCounts = useMemo(() => countByStage(staged), [staged]);
 
+  const handleImportClick = () => {
+    // Adicione aqui a lógica do botão se necessário
+  };
+
   return (
     <div className="line-page">
       <article className="dashboard-panel">
-        <SectionHeading
-          title="Jornada do cuidado materno-infantil"
-          subtitle="Os indicadores percorrem gestação, parto, puerpério, recém-nascido e infância — 41 indicadores previstos"
-        />
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <SectionHeading
+            title="Jornada do cuidado materno-infantil"
+            subtitle="Os indicadores percorrem gestação, parto, puerpério, recém-nascido e infância — 41 indicadores previstos"
+          />
+          <button 
+            type="button"
+            onClick={handleImportClick}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "9px 16px",
+              backgroundColor: "#1d4e8a", // Azul mais chamativo e sólido
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "12px",
+              fontWeight: 600,
+              color: "#ffffff", // Texto branco para destacar
+              cursor: "pointer", // Garante o formato de clique (mãozinha)
+              boxShadow: "0 2px 4px rgba(29, 78, 138, 0.2)",
+              whiteSpace: "nowrap",
+              marginTop: "4px",
+              transition: "background-color 0.2s ease"
+            }}
+          >
+            Importar Planilha
+          </button>
+        </div>
         <JourneyStrip
           steps={MATERNO_JOURNEY}
           numbered
