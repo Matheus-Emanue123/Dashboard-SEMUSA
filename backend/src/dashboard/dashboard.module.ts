@@ -6,5 +6,6 @@ import { SupabaseService } from './supabase.service';
 @Module({
   controllers: [DashboardController],
   providers: [SupabaseService, DashboardService],
+  exports: [SupabaseService],
 })
 export class DashboardModule {}

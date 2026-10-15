@@ -10,6 +10,8 @@ import NavegacaoCuidado from "./pages/NavegacaoCuidado/NavegacaoCuidado";
 import ConexaoColaborativa from "./pages/ConexaoColaborativa/ConexaoColaborativa";
 import Ods from "./pages/Ods/Ods";
 import Catalogo from "./pages/Catalogo/Catalogo";
+import Login from "./pages/Login/Login";
+import { AuthProvider, useAuth } from "./contexts/AuthContext";
 
 import { LOCATION_OPTIONS, PAGE_META } from "./services/overviewDashboard";
 
@@ -36,11 +38,24 @@ function renderPage(page, onSelectLine, onOpenSheet) {
   }
 }
 
-function App() {
+function AuthenticatedApp() {
+  const { session, loading } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activePage, setActivePage] = useState("Visão Geral");
   const [location, setLocation] = useState(LOCATION_OPTIONS[0]);
   const [selectedIndicator, setSelectedIndicator] = useState(null);
+
+  if (loading) {
+    return (
+      <div style={{ display: "flex", height: "100vh", alignItems: "center", justifyContent: "center", color: "#0f2744", fontFamily: "sans-serif" }}>
+        Carregando painel SEMUSA...
+      </div>
+    );
+  }
+
+  if (!session) {
+    return <Login />;
+  }
 
   const meta = PAGE_META[activePage] ?? PAGE_META["Visão Geral"];
 
@@ -72,6 +87,14 @@ function App() {
         onClose={() => setSelectedIndicator(null)}
       />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AuthenticatedApp />
+    </AuthProvider>
   );
 }
 

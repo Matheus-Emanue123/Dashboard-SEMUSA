@@ -152,9 +152,9 @@ export const ODS_PANELS = [
     titulo: "Saúde e Bem-Estar",
     cor: "#4CAF50",
     indicadores: [
-      { name: "Mortalidade prematura por DCNT", value: "342", status: "alert", trend: "↓ -12/ano", meta: "< 300" },
-      { name: "Cobertura de serviços de saúde essenciais", value: "71,4%", status: "stable", trend: "↑ +1,2pp", meta: "≥ 80%" },
-      { name: "Mortalidade materna", value: "38,6", status: "ok", trend: "↑ -4,1", meta: "< 50" },
+      { name: "Mortalidade prematura por DCNT", value: "342", parameterStatus: "outside", status: "alert", trend: "↓ -12/ano", meta: "< 300" },
+      { name: "Cobertura de serviços de saúde essenciais", value: "71,4%", parameterStatus: "outside", status: "stable", trend: "↑ +1,2pp", meta: "≥ 80%" },
+      { name: "Mortalidade materna", value: "38,6", parameterStatus: "within", status: "ok", trend: "↑ -4,1", meta: "< 50" },
     ],
   },
   {
@@ -162,8 +162,8 @@ export const ODS_PANELS = [
     titulo: "Fome Zero e Agricultura",
     cor: "#FFC107",
     indicadores: [
-      { name: "Prevalência de desnutrição infantil (< 5a)", value: "4,2%", status: "ok", trend: "↑ -0,3pp", meta: "< 5%" },
-      { name: "Insegurança alimentar grave", value: "8,7%", status: "alert", trend: "↓ +0,9pp", meta: "< 5%" },
+      { name: "Prevalência de desnutrição infantil (< 5a)", value: "4,2%", parameterStatus: "within", status: "ok", trend: "↑ -0,3pp", meta: "< 5%" },
+      { name: "Insegurança alimentar grave", value: "8,7%", parameterStatus: "outside", status: "alert", trend: "↓ +0,9pp", meta: "< 5%" },
     ],
   },
   {
@@ -171,8 +171,8 @@ export const ODS_PANELS = [
     titulo: "Redução das Desigualdades",
     cor: "#E91E63",
     indicadores: [
-      { name: "Desigualdade racial em cobertura vacinal", value: "7,3pp", status: "alert", trend: "↑ -1,1pp", meta: "< 3pp" },
-      { name: "Acesso equitativo à atenção especializada", value: "62,1%", status: "alert", trend: "↑ +3,2pp", meta: "≥ 75%" },
+      { name: "Desigualdade racial em cobertura vacinal", value: "7,3pp", parameterStatus: "outside", status: "alert", trend: "↑ -1,1pp", meta: "< 3pp" },
+      { name: "Acesso equitativo à atenção especializada", value: "62,1%", parameterStatus: "outside", status: "alert", trend: "↑ +3,2pp", meta: "≥ 75%" },
     ],
   },
   {

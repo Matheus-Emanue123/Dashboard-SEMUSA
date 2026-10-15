@@ -7,9 +7,12 @@ export class SupabaseService {
   public readonly client: SupabaseClient;
 
   constructor(config: ConfigService) {
-    this.client = createClient(
-      config.getOrThrow<string>('SUPABASE_URL'),
-      config.getOrThrow<string>('SUPABASE_KEY'),
-    );
+    // aceita a URL com ou sem o /rest/v1 no final
+    const url = config
+      .getOrThrow<string>('SUPABASE_URL')
+      .replace(/\/rest\/v1\/?$/, '')
+      .replace(/\/+$/, '');
+
+    this.client = createClient(url, config.getOrThrow<string>('SUPABASE_KEY'));
   }
 }

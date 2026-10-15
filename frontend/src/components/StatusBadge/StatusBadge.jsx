@@ -9,7 +9,7 @@ function StatusBadge({ status, label }) {
       style={{
         backgroundColor: style.background,
         color: style.color,
-        borderColor: `${style.color}40`,
+        borderColor: style.softBorder,
       }}
     >
       {style.symbol}

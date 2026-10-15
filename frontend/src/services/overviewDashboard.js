@@ -53,11 +53,46 @@ export const COVERAGE_LINES = [
 ];
 
 export const STATUS_STYLES = {
-  ok: { color: "#2bbac2", background: "#e8f8fa", symbol: "✓", label: "OK" },
-  alert: { color: "#d97706", background: "#fdf3e3", symbol: "!", label: "Alerta" },
-  improving: { color: "#16a34a", background: "#e6f4eb", symbol: "↑", label: "Melhora" },
-  stable: { color: "#6b7280", background: "#f3f4f6", symbol: "=", label: "Estável" },
-  worsening: { color: "#7c3aed", background: "#f3eeff", symbol: "↓", label: "Piora" },
+  ok: {
+    color: "var(--status-ok)",
+    background: "var(--status-ok-bg)",
+    border: "var(--status-ok-border)",
+    softBorder: "var(--status-ok-soft-border)",
+    symbol: "✓",
+    label: "OK",
+  },
+  alert: {
+    color: "var(--status-alert)",
+    background: "var(--status-alert-bg)",
+    border: "var(--status-alert-border)",
+    softBorder: "var(--status-alert-soft-border)",
+    symbol: "!",
+    label: "Alerta",
+  },
+  improving: {
+    color: "var(--status-improving)",
+    background: "var(--status-improving-bg)",
+    border: "var(--status-improving-border)",
+    softBorder: "var(--status-improving-soft-border)",
+    symbol: "↑",
+    label: "Melhora",
+  },
+  stable: {
+    color: "var(--status-stable)",
+    background: "var(--status-stable-bg)",
+    border: "var(--status-stable-border)",
+    softBorder: "var(--status-stable-soft-border)",
+    symbol: "=",
+    label: "Estável",
+  },
+  worsening: {
+    color: "var(--status-worsening)",
+    background: "var(--status-worsening-bg)",
+    border: "var(--status-worsening-border)",
+    softBorder: "var(--status-worsening-soft-border)",
+    symbol: "↓",
+    label: "Piora",
+  },
 };
 
 export const STATUS_DESCRIPTIONS = {
@@ -107,39 +142,6 @@ export const PAGE_META = {
     subtitle: "Catálogo das fichas oficiais · filtro por linha e situação",
   },
 };
-
-export const ATTENTION_INDICATORS = [
-  {
-    label: "Sífilis congênita em tendência de piora",
-    line: "Materno-Infantil",
-    status: "worsening",
-  },
-  {
-    label: "FIT: realização 25pp abaixo da meta (34,7%)",
-    line: "Câncer Colorretal",
-    status: "alert",
-  },
-  {
-    label: "Cobertura vacinal DPT: 91,2% vs meta ≥ 95%",
-    line: "Materno-Infantil",
-    status: "alert",
-  },
-  {
-    label: "Abandono de tratamento crônicas: 18,4%",
-    line: "Navegação do Cuidado",
-    status: "worsening",
-  },
-  {
-    label: "Tempo médio de espera especialidade: 47 dias",
-    line: "Navegação do Cuidado",
-    status: "alert",
-  },
-  {
-    label: "Risco nutricional infantil em piora",
-    line: "Conexão Colaborativa",
-    status: "worsening",
-  },
-];
 
 export const LINE_STATUS = [
   { linha: "Materno-Infantil", ok: 3, alert: 2, worsening: 1, color: "#2bbac2" },

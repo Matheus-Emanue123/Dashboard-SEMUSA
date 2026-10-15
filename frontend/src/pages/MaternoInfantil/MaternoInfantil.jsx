@@ -13,6 +13,7 @@ import {
   Cell,
 } from "recharts";
 
+import { STATUS_STYLES } from "../../services/overviewDashboard";
 import SectionHeading from "../Dashboard/SectionHeading";
 import JourneyStrip from "../../components/JourneyStrip/JourneyStrip";
 import IndicatorGrid from "../../components/IndicatorGrid/IndicatorGrid";
@@ -32,9 +33,9 @@ import {
 } from "../../services/indicatorStages";
 
 const STATUS_PIE = [
-  { name: "OK", value: 2, color: "#2bbac2" },
-  { name: "Alerta", value: 3, color: "#d97706" },
-  { name: "Piora", value: 1, color: "#7c3aed" },
+  { name: STATUS_STYLES.ok.label, value: 2, color: STATUS_STYLES.ok.color },
+  { name: STATUS_STYLES.alert.label, value: 3, color: STATUS_STYLES.alert.color },
+  { name: STATUS_STYLES.worsening.label, value: 1, color: STATUS_STYLES.worsening.color },
 ];
 
 function MaternoInfantil({ onOpenSheet }) {
@@ -45,13 +46,42 @@ function MaternoInfantil({ onOpenSheet }) {
   );
   const stageCounts = useMemo(() => countByStage(staged), [staged]);
 
+  const handleImportClick = () => {
+    // Adicione aqui a lógica do botão se necessário
+  };
+
   return (
     <div className="line-page">
       <article className="dashboard-panel">
-        <SectionHeading
-          title="Jornada do cuidado materno-infantil"
-          subtitle="Os indicadores percorrem gestação, parto, puerpério, recém-nascido e infância — 41 indicadores previstos"
-        />
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+          <SectionHeading
+            title="Jornada do cuidado materno-infantil"
+            subtitle="Os indicadores percorrem gestação, parto, puerpério, recém-nascido e infância — 41 indicadores previstos"
+          />
+          <button 
+            type="button"
+            onClick={handleImportClick}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "9px 16px",
+              backgroundColor: "#1d4e8a", // Azul mais chamativo e sólido
+              border: "none",
+              borderRadius: "8px",
+              fontSize: "12px",
+              fontWeight: 600,
+              color: "#ffffff", // Texto branco para destacar
+              cursor: "pointer", // Garante o formato de clique (mãozinha)
+              boxShadow: "0 2px 4px rgba(29, 78, 138, 0.2)",
+              whiteSpace: "nowrap",
+              marginTop: "4px",
+              transition: "background-color 0.2s ease"
+            }}
+          >
+            Importar Planilha
+          </button>
+        </div>
         <JourneyStrip
           steps={MATERNO_JOURNEY}
           numbered
