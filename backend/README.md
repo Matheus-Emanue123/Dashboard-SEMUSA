@@ -93,4 +93,5 @@ sessão por `apiFetch`, fica disponível apenas para `OPERADOR` e não atualiza 
 dados demonstrativos dos gráficos.
 
 Validação HTTP local, com JWT ES256 e JWKS locais e persistência simulada
-(sem acesso ao Supabase real): `npm run build && node --test test/materno-importacao.test.cjs`.
+(sem acesso ao Supabase real), e os testes unitários do parser da planilha:
+`npm run build && node --test test/*.test.cjs`.
