@@ -1,7 +1,7 @@
 # Dashboard SEMUSA — Backend
 
-API mínima em NestJS. Só consulta o Supabase (Postgres gerenciado) e devolve
-o que está lá, no mesmo formato que o frontend já espera.
+API em NestJS para consulta de indicadores e importação de planilhas
+materno-infantis no Supabase (Postgres gerenciado).
 
 ```
 Frontend (React) → API NestJS (/api/...) → Supabase (Postgres)
@@ -12,7 +12,8 @@ Frontend (React) → API NestJS (/api/...) → Supabase (Postgres)
 ```bash
 npm install
 cp .env.example .env
-# preencha SUPABASE_URL e SUPABASE_KEY (Supabase > Project Settings > API)
+# preencha SUPABASE_URL, SUPABASE_KEY e SUPABASE_SERVICE_ROLE_KEY
+# (Supabase > Project Settings > API; chaves somente no backend)
 
 npm run start:dev   # sobe em http://localhost:3000/api
 ```
@@ -63,3 +64,34 @@ correspondente, então o resto do componente (JSX, estilos) não muda nada.
 - Decidir se querem paginação/filtros (ex: `?linha=materno`) quando o volume
   de indicadores crescer — hoje os endpoints devolvem tudo de uma vez, o que
   é suficiente para o volume atual de dados mockados.
+
+## Importação materno-infantil
+
+`POST /api/materno-infantil/importar` exige JWT válido da sessão Supabase
+(`Authorization: Bearer ...`) e role `OPERADOR` em `app_metadata`.
+Nenhuma API key de importação é necessária. Os demais perfis, inclusive `ADMIN`,
+recebem 403. Sem JWT válido, a resposta é 401.
+
+Envie `multipart/form-data`, campo `arquivo`, com um `.xlsx` de até 5 MiB.
+O navegador define o `Content-Type` e o boundary automaticamente.
+A planilha deve seguir o modelo com abas `Cadastro Indicadores` e `Referência`.
+
+- 201: `{ "importadas": 10, "ignoradas": 2 }`.
+- 400: `{ "message": "..." }`; erros de linhas também incluem
+  `"erros": [{ "linha": 2, "motivo": "..." }]`. Se houver erros de validação,
+  nenhuma linha é gravada.
+- 413: arquivo acima do limite.
+- 500: falha na persistência. A gravação ocorre em lotes de 500, sem transação
+  entre lotes; uma falha pode deixar lotes anteriores gravados.
+
+No backend, configure `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` para a
+importação, além de `SUPABASE_KEY` usada pelas consultas existentes. A chave
+service role é exclusiva do servidor e nunca deve usar prefixo `VITE_`.
+No frontend, mantenha `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` e
+`VITE_API_BASE_URL` (padrão `http://localhost:3000/api`). O botão usa o JWT da
+sessão por `apiFetch`, fica disponível apenas para `OPERADOR` e não atualiza os
+dados demonstrativos dos gráficos.
+
+Validação HTTP local, com JWT ES256 e JWKS locais e persistência simulada
+(sem acesso ao Supabase real), e os testes unitários do parser da planilha:
+`npm run build && node --test test/*.test.cjs`.

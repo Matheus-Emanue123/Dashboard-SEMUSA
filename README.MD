@@ -80,8 +80,12 @@ O backend utiliza as seguintes variáveis de ambiente:
 ```text
 SUPABASE_URL
 SUPABASE_KEY
+SUPABASE_SERVICE_ROLE_KEY
 PORT
 ```
+
+A importação materno-infantil usa a chave service role somente no backend.
+Consulte o contrato e a configuração em [backend/README.md](backend/README.md#importação-materno-infantil).
 
 Não versione credenciais ou chaves reais no repositório.
 

@@ -74,9 +74,40 @@ function numero(v: unknown): number | null {
   return Number.isFinite(n) ? n : NaN;
 }
 
-function dataIso(v: unknown): string | null {
-  if (v instanceof Date && !Number.isNaN(v.getTime())) {
+// Dia 0 da planilha Excel (sistema 1900): 1899-12-30, em dias desde a época Unix.
+const EPOCA_EXCEL_EM_DIAS = 25569;
+const EPOCA_EXCEL_1904_EM_DIAS = 25569 - 1462;
+const UM_DIA_EM_MS = 24 * 60 * 60 * 1000;
+
+// Aceita o Date já reconhecido pelo exceljs e, como reforço, o número de série do Excel cru:
+// algumas planilhas (em especial exportadas por LibreOffice/Calc com formato de data
+// personalizado) chegam com a célula formatada como número comum, e o exceljs não consegue
+// convertê-la para Date sozinho — sem esse reforço a linha vira uma data errada (vazia ou de 1970).
+function dataIso(v: unknown, date1904 = false): string | null {
+  if (v instanceof Date) {
+    if (Number.isNaN(v.getTime())) return null;
     return v.toISOString().slice(0, 10);
+  }
+  if (typeof v === 'number' && Number.isFinite(v)) {
+    const epoca = date1904 ? EPOCA_EXCEL_1904_EM_DIAS : EPOCA_EXCEL_EM_DIAS;
+    const data = new Date(Math.round((v - epoca) * UM_DIA_EM_MS));
+    if (Number.isNaN(data.getTime())) return null;
+    return data.toISOString().slice(0, 10);
+  }
+  if (typeof v === 'string') {
+    // dd/mm/aaaa (padrão br) — nunca usar o Date nativo aqui, que interpreta como mm/dd/aaaa.
+    const brasileiro = v.trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (brasileiro) {
+      const [, d, m, a] = brasileiro;
+      const data = new Date(Date.UTC(Number(a), Number(m) - 1, Number(d)));
+      if (data.getUTCMonth() === Number(m) - 1 && data.getUTCDate() === Number(d)) {
+        return data.toISOString().slice(0, 10);
+      }
+      return null;
+    }
+    // aaaa-mm-dd (ISO)
+    const iso = v.trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (iso) return iso[0];
   }
   return null;
 }
@@ -123,6 +154,7 @@ export function lerPlanilha(wb: Workbook, agora: string): ResultadoLeitura {
     );
   }
 
+  const date1904 = wb.properties?.date1904 ?? false;
   const unidades = lerUnidades(referencia);
   const { linhaCabecalho, colunas } = mapearColunas(dados, 'periodo_referencia');
 
@@ -160,7 +192,8 @@ export function lerPlanilha(wb: Workbook, agora: string): ResultadoLeitura {
 
     if (!codigo) { erro('codigo_indicador vazio'); continue; }
     if (!unidades.has(codigo)) { erro(`código ${codigo} não existe na aba Referência`); continue; }
-    if (!(periodo instanceof Date) || Number.isNaN(periodo.getTime())) { erro('periodo_referencia vazio ou não é uma data'); continue; }
+    const periodoIso = dataIso(periodo, date1904);
+    if (!periodoIso) { erro('periodo_referencia vazio ou não é uma data'); continue; }
     if (!tipo) { erro('tipo_atendimento vazio'); continue; }
     if (!detalhamento) { erro('detalhamento vazio'); continue; }
 
@@ -180,7 +213,7 @@ export function lerPlanilha(wb: Workbook, agora: string): ResultadoLeitura {
     }
 
     // sempre o dia 1 do mês, para a chave única não duplicar por causa do dia
-    const mes = dataIso(periodo)!.slice(0, 7) + '-01';
+    const mes = periodoIso.slice(0, 7) + '-01';
 
     const chave = [mes, codigo, tipo, detalhamento].join('|');
     const anterior = vistas.get(chave);
@@ -198,7 +231,7 @@ export function lerPlanilha(wb: Workbook, agora: string): ResultadoLeitura {
       unidade_medida: unidades.get(codigo) ?? null,
       justificativa: texto(v('justificativa_observacao')),
       relatorio_fonte: texto(v('relatorio_fonte')),
-      data_registro: dataIso(v('data_do_registro')),
+      data_registro: dataIso(v('data_do_registro'), date1904),
       area_responsavel: texto(v('area_responsavel')),
       situacao_dado: texto(v('situacao_do_dado')),
       atualizado_em: agora,
