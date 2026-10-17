@@ -33,6 +33,34 @@ com os mesmos dados que hoje estão mockados em `src/data/overviewDashboard.js`.
 | `GET /api/avisos-qualidade`      | `avisos_qualidade`     | `QUALITY_NOTICES`       |
 | `GET /api/fontes-ativas`         | `fontes_ativas`        | `ACTIVE_SOURCES`        |
 
+## Administração de usuários (somente `ADMIN`)
+
+Exigem login e a role `ADMIN`. Toda ação grava uma linha em `auditoria_admin`
+(quem fez, em quem, qual operação). Precisa da migration `005_admin_users.sql`.
+
+| Endpoint                                | O que faz                                              |
+|------------------------------------------|---------------------------------------------------------|
+| `GET /api/admin/users`                   | Lista paginada (`page`, `pageSize`, `busca`, `role`)    |
+| `POST /api/admin/users`                  | Cria o usuário (Auth + `perfis`), com senha temporária  |
+| `PATCH /api/admin/users/:id/password`    | Redefine a senha (volta a exigir a troca no próximo login) |
+| `PATCH /api/admin/users/:id/role`        | Altera papel e unidade                                  |
+| `PATCH /api/admin/users/:id/status`      | Bloqueia ou reativa a conta                             |
+| `POST /api/auth/trocar-senha-inicial`    | Qualquer usuário logado, só enquanto `deve_trocar_senha` for verdadeiro |
+
+Testes: `npm test`.
+
+**Limitação conhecida:** o Supabase deixa o próprio usuário trocar a senha direto do
+navegador (`auth.updateUser`) ou pedir recuperação por e-mail. A opção "Secure password
+change" do Supabase só exige reautenticação quando o login tem mais de 24h, então
+**não fecha** essa brecha logo após o login. Para impedir de verdade, desabilite a
+recuperação de senha por e-mail e avalie um trigger em `auth.users` que audite trocas
+de senha feitas fora do backend. Hoje "só o TI troca a senha" vale na interface e na API.
+
+**Estado da conta:** o `AccountStateGuard` consulta `perfis` a cada requisição. Conta
+bloqueada recebe 401, a role usada é a do banco (rebaixamento vale na hora) e, enquanto
+`deve_trocar_senha` estiver ligado, só `/auth/trocar-senha-inicial` e `/auth/me` respondem.
+Por isso a migration 005 precisa estar aplicada antes de subir este backend.
+
 ## Trocar o mock pelo fetch no frontend
 
 Hoje cada componente importa direto de `overviewDashboard.js`, ex:
@@ -68,7 +96,7 @@ correspondente, então o resto do componente (JSX, estilos) não muda nada.
 ## Importação materno-infantil
 
 `POST /api/materno-infantil/importar` exige JWT válido da sessão Supabase
-(`Authorization: Bearer ...`) e role `OPERADOR` em `app_metadata`.
+(`Authorization: Bearer ...`) e role `OPERADOR` ou `ADMIN` em `app_metadata`.
 Nenhuma API key de importação é necessária. Os demais perfis, inclusive `ADMIN`,
 recebem 403. Sem JWT válido, a resposta é 401.
 
@@ -89,7 +117,7 @@ importação, além de `SUPABASE_KEY` usada pelas consultas existentes. A chave
 service role é exclusiva do servidor e nunca deve usar prefixo `VITE_`.
 No frontend, mantenha `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` e
 `VITE_API_BASE_URL` (padrão `http://localhost:3000/api`). O botão usa o JWT da
-sessão por `apiFetch`, fica disponível apenas para `OPERADOR` e não atualiza os
+sessão por `apiFetch`, fica disponível apenas para `OPERADOR` e `ADMIN` e não atualiza os
 dados demonstrativos dos gráficos.
 
 Validação HTTP local, com JWT ES256 e JWKS locais e persistência simulada
