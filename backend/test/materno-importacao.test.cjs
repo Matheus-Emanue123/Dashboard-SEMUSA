@@ -9,6 +9,7 @@ const { Module } = require('@nestjs/common');
 const { AuthModule } = require('../dist/auth/auth.module');
 const { MaternoImportacaoModule } = require('../dist/materno-importacao/materno-importacao.module');
 const { MaternoImportacaoService } = require('../dist/materno-importacao/materno-importacao.service');
+const { SupabaseService } = require('../dist/dashboard/supabase.service');
 
 // Exercises the real JWT/JWKS, global guards, multipart interceptor and parser.
 // Only persistence is replaced; no credentials or external services are used.
@@ -36,7 +37,7 @@ test('importação HTTP com autenticação e autorização reais', async (t) => 
   const { Global } = require('@nestjs/common');
   class TestConfigModule {}
   Global()(TestConfigModule);
-  Module({ providers: [{ provide: ConfigService, useValue: new ConfigService({ SUPABASE_URL: supabaseUrl }) }], exports: [ConfigService] })(TestConfigModule);
+  Module({ providers: [{ provide: ConfigService, useValue: new ConfigService({ SUPABASE_URL: supabaseUrl, SUPABASE_KEY: 'local-test-key' }) }], exports: [ConfigService] })(TestConfigModule);
   Module({ imports: [TestConfigModule, AuthModule, MaternoImportacaoModule] })(TestModule);
   const app = await NestFactory.create(TestModule, { logger: false, abortOnError: false });
   t.after(() => app.close());
@@ -48,10 +49,21 @@ test('importação HTTP com autenticação e autorização reais', async (t) => 
       return { async upsert(rows, options) { writes.push({ rows, options }); return { error: storageError }; } };
     },
   };
+  // o AccountStateGuard confere o perfil no banco a cada requisição: aqui o "banco" devolve uma conta
+  // ativa com a mesma role que o token declara (token() guarda a última role gerada)
+  let perfilRole;
+  app.get(SupabaseService).client = {
+    from(table) {
+      assert.equal(table, 'perfis');
+      const perfil = { ativo: true, role: perfilRole, unidade_saude: null, deve_trocar_senha: false };
+      return { select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: perfil, error: null }) }) }) };
+    },
+  };
   app.setGlobalPrefix('api');
   await app.listen(0, '127.0.0.1');
   const url = `${await app.getUrl()}/api/materno-infantil/importar`;
   const token = (role, extra = {}) => {
+    perfilRole = role;
     const enc = (value) => Buffer.from(JSON.stringify(value)).toString('base64url');
     const unsigned = `${enc({ alg: 'ES256', kid: 'local-test' })}.${enc({
       sub: 'local-user', aud: 'authenticated', iss: `${supabaseUrl}/auth/v1`,
@@ -85,8 +97,14 @@ test('importação HTTP com autenticação e autorização reais', async (t) => 
   await t.test('401 para sessão ausente, token inválido e expirado', async () => {
     for (const jwt of [null, 'invalid', token('OPERADOR', { exp: 1 })]) assert.equal((await post({ jwt, bytes: valid })).status, 401);
   });
+  await t.test('ADMIN também importa', async () => {
+    const result = await post({ jwt: token('ADMIN'), bytes: valid });
+    assert.equal(result.status, 201);
+    assert.deepEqual(result.body, { importadas: 1, ignoradas: 1 });
+    writes.pop(); // os testes seguintes contam as gravações; remove a deste
+  });
   await t.test('403 para todos os outros perfis e role forjada em user_metadata', async () => {
-    for (const role of ['ADMIN', 'GESTOR', 'VISUALIZADOR_UNIDADE', undefined]) {
+    for (const role of ['GESTOR', 'VISUALIZADOR_UNIDADE', undefined]) {
       assert.equal((await post({ jwt: token(role, { user_metadata: { role: 'OPERADOR' } }), bytes: valid })).status, 403);
     }
   });

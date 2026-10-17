@@ -21,6 +21,16 @@ updates:
       - "dependencies"
       - "security"
       - "backend"
+    ignore:
+      # o Nest 12 é ESM puro e o backend é CommonJS: fica no Nest 11 até migrar o backend para ESM
+      - dependency-name: "@nestjs/*"
+        update-types: ["version-update:semver-major"]
+      # o ts-jest ainda não suporta o TypeScript 7
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      # os tipos precisam acompanhar a versão do Node usada em produção
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   # Monitoramento de dependências do Backend (Python / pip) caso seja adotado
   - package-ecosystem: "pip"
