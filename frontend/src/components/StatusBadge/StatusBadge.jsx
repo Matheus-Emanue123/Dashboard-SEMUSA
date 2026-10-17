@@ -1,7 +1,9 @@
 import { STATUS_STYLES } from "../../services/overviewDashboard";
 
 function StatusBadge({ status, label }) {
-  const style = STATUS_STYLES[status] ?? STATUS_STYLES.stable;
+  const style = status === "unevaluated"
+    ? { color: "#5a7080", background: "#f0f3f6", softBorder: "#d0dcea", symbol: "—" }
+    : STATUS_STYLES[status] ?? STATUS_STYLES.stable;
 
   return (
     <span
@@ -13,7 +15,7 @@ function StatusBadge({ status, label }) {
       }}
     >
       {style.symbol}
-      {label ? ` ${label}` : ""}
+      {label ? ` ${label}` : status === "unevaluated" ? " Não avaliado" : ""}
     </span>
   );
 }

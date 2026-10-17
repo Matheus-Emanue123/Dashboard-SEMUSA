@@ -42,10 +42,17 @@ test('importação HTTP com autenticação e autorização reais', async (t) => 
   t.after(() => app.close());
   const writes = [];
   let storageError = null;
+  let readError = null;
+  let storedRows = [];
+  const ranges = [];
   app.get(MaternoImportacaoService).supabase = {
     from(table) {
       assert.equal(table, 'materno_resultados');
-      return { async upsert(rows, options) { writes.push({ rows, options }); return { error: storageError }; } };
+      return {
+        async upsert(rows, options) { writes.push({ rows, options }); return { error: storageError }; },
+        select() { return this; }, in() { return this; }, order() { return this; },
+        async range(start, end) { ranges.push([start,end]); return { data: storedRows.slice(start,end+1), error:readError }; },
+      };
     },
   };
   app.setGlobalPrefix('api');
@@ -76,6 +83,28 @@ test('importação HTTP com autenticação e autorização reais', async (t) => 
     return wb;
   };
   const valid = await workbook().xlsx.writeBuffer();
+  const get = (jwt) => fetch(url.replace('/importar','/resultados'), { headers:jwt ? { Authorization:`Bearer ${jwt}` } : {} });
+  await t.test('GET exige JWT e permite leitura a todos os perfis autenticados', async () => {
+    for (const jwt of [null,'invalid',token('OPERADOR',{exp:1})]) assert.equal((await get(jwt)).status,401);
+    for (const role of ['OPERADOR','ADMIN','GESTOR','VISUALIZADOR_UNIDADE',undefined]) {
+      const res = await get(token(role));
+      assert.equal(res.status,200);
+      const body = await res.json();
+      assert.equal(body.indicators.length,9);
+      assert.ok(body.indicators.every(x=>x.latest===null));
+    }
+  });
+  await t.test('GET pagina sem truncar e propaga falha sem fallback', async () => {
+    storedRows = Array.from({length:501},(_,i)=>({periodo_referencia:'2026-08-01',codigo_indicador:'2017',tipo_atendimento:'SUS',detalhamento:'Sem detalhamento',resultado:1,numerador:1,denominador:1,atualizado_em:'2026-09-01'}));
+    ranges.length=0;
+    const res = await get(token('GESTOR'));
+    assert.equal(res.status,200);
+    assert.equal((await res.json()).indicators.find(x=>x.id==='mi37').latest.value,100);
+    assert.deepEqual(ranges,[[0,499],[500,999]]);
+    readError={message:'Falha simulada'};
+    assert.equal((await get(token('GESTOR'))).status,500);
+    readError=null; storedRows=[];
+  });
   await t.test('OPERADOR importa sem x-api-key e retorna contagens', async () => {
     assert.deepEqual(await post({ bytes: valid }), { status: 201, body: { importadas: 1, ignoradas: 1 } });
     assert.equal(writes.length, 1);
