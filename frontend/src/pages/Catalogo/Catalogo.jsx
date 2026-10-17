@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 
+import { useMaternoResults } from "../../hooks/useMaternoResults";
 import { LINE_SUMMARY_CARDS, STATUS_STYLES } from "../../services/overviewDashboard";
 import { CATALOG_GROUPS, CATALOG_INDICATORS } from "../../services/catalogIndicators";
 import {
@@ -13,13 +14,14 @@ import IndicatorGroupList from "../../components/IndicatorBrowser/IndicatorGroup
 import CatalogTable from "./CatalogTable";
 
 function Catalogo({ onOpenSheet }) {
+  const { indicators: maternoIndicators, error: maternoError } = useMaternoResults();
   const [query, setQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [groupFilter, setGroupFilter] = useState("all");
   const [stageFilter, setStageFilter] = useState("all");
   const [view, setView] = useState("grid");
 
-  const stagedCatalog = useMemo(() => decorateWithStage(CATALOG_INDICATORS), []);
+  const stagedCatalog = useMemo(() => decorateWithStage(CATALOG_INDICATORS.map(item => item.line === "Materno-Infantil" ? maternoIndicators.find(real => real.id === item.id) : item)), [maternoIndicators]);
   const stageDefs = getStageDefs(groupFilter);
 
   useEffect(() => {
@@ -62,6 +64,7 @@ function Catalogo({ onOpenSheet }) {
 
   return (
     <div className="catalog">
+      {maternoError && <p role="alert">{maternoError}</p>}
       <div className="catalog__toolbar">
         <input
           className="catalog__search"

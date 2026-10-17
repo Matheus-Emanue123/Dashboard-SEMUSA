@@ -11,6 +11,7 @@ import {
 
 import { CATALOG_INDICATORS } from "../../services/catalogIndicators";
 import { INDICATOR_HISTORY, buildIndicatorSeries, formatIndicatorValue } from "../../services/indicatorHistory";
+import { useMaternoResults } from "../../hooks/useMaternoResults";
 import SectionHeading from "./SectionHeading";
 
 const GRANULARITIES = [
@@ -18,27 +19,31 @@ const GRANULARITIES = [
   { id: "monthly", label: "Mensal" },
 ];
 
-function CoverageChart() {
+function CoverageChart({ maternoOnly = false }) {
+  const { indicators: maternoIndicators, error, loading } = useMaternoResults();
   const [granularity, setGranularity] = useState("quadrimester");
-  const [indicatorId, setIndicatorId] = useState(INDICATOR_HISTORY[0]?.indicatorId ?? "");
-  const availableIndicators = CATALOG_INDICATORS;
+  const [indicatorId, setIndicatorId] = useState(maternoOnly ? "mi37" : INDICATOR_HISTORY[0]?.indicatorId ?? "");
+  const availableIndicators = maternoOnly ? maternoIndicators : CATALOG_INDICATORS.map(item => item.line === "Materno-Infantil" ? maternoIndicators.find(real => real.id === item.id) : item);
   const indicator = availableIndicators.find((item) => item.id === indicatorId);
-  const series = INDICATOR_HISTORY.find((item) => item.indicatorId === indicatorId);
-  const data = useMemo(() => buildIndicatorSeries(series, granularity), [series, granularity]);
+  const isMaterno = indicator?.line === "Materno-Infantil";
+  const series = isMaterno ? null : INDICATOR_HISTORY.find((item) => item.indicatorId === indicatorId);
+  const data = useMemo(() => isMaterno ? indicator?.history?.[granularity] ?? [] : buildIndicatorSeries(series, granularity), [isMaterno, indicator, series, granularity]);
+  const births = indicatorId === "mi08";
+  const hasData = data.some(item => births ? item.normal != null || item.cesareo != null : item.value != null);
 
   return (
     <article className="dashboard-panel">
       <div className="evolution-chart__header">
         <SectionHeading
           title="Evolução do indicador"
-          subtitle="Série mensal demonstrativa consolidada por quadrimestre"
+          subtitle={isMaterno ? "Resultados importados · consolidação pelos componentes" : "Série mensal demonstrativa consolidada por quadrimestre"}
         />
         <div className="evolution-chart__controls">
-          <label className="evolution-chart__indicator-label" htmlFor="evolution-indicator">
+          <label className="evolution-chart__indicator-label" htmlFor={maternoOnly ? "materno-evolution-indicator" : "evolution-indicator"}>
             Indicador
           </label>
           <select
-            id="evolution-indicator"
+            id={maternoOnly ? "materno-evolution-indicator" : "evolution-indicator"}
             className="evolution-chart__indicator"
             value={indicatorId}
             onChange={(event) => setIndicatorId(event.target.value)}
@@ -65,10 +70,13 @@ function CoverageChart() {
 
       <p className="evolution-chart__period-note" aria-live="polite">
         Exibindo {granularity === "quadrimester" ? "quadrimestres (jan–abr, mai–ago, set–dez)" : "meses"}
-        {indicator?.unit ? ` · Unidade: ${indicator.unit}` : ""}
+        {(indicator?.historyUnit ?? indicator?.unit) ? ` · Unidade: ${indicator.historyUnit ?? indicator.unit}` : ""}
       </p>
 
-      {data.length ? (
+      {births && <p>Partos normais (azul claro) · Partos cesáreos (azul escuro)</p>}
+      {isMaterno && loading && <p role="status">Carregando histórico...</p>}
+      {isMaterno && error && <p role="alert">{error}</p>}
+      {hasData ? (
         <div className="coverage-chart">
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={data} margin={{ top: 8, right: 16, left: 4, bottom: 4 }}>
@@ -77,10 +85,13 @@ function CoverageChart() {
               <YAxis width={52} tick={{ fontSize: 11, fill: "#5a7080" }} axisLine={false} tickLine={false} />
               <Tooltip
                 labelFormatter={(label, payload) => payload?.[0]?.payload?.partial ? `${label} (período parcial)` : label}
-                formatter={(value) => formatIndicatorValue(value, indicator?.unit)}
+                formatter={(value) => formatIndicatorValue(value, indicator?.historyUnit ?? indicator?.unit)}
                 contentStyle={{ border: "1px solid #d0dcea", borderRadius: 8, fontSize: 12 }}
               />
-              <Line
+              {births ? <>
+                <Line type="monotone" dataKey="normal" name="Partos normais" stroke="#1d8fa8" dot={{ r: 4 }} connectNulls={false} />
+                <Line type="monotone" dataKey="cesareo" name="Partos cesáreos" stroke="#1d4e8a" dot={{ r: 4 }} connectNulls={false} />
+              </> : <Line
                 type="monotone"
                 dataKey="value"
                 name={indicator?.name ?? "Indicador"}
@@ -89,7 +100,7 @@ function CoverageChart() {
                 dot={{ r: 4, fill: "#1d8fa8" }}
                 activeDot={{ r: 6 }}
                 connectNulls={false}
-              />
+              />}
             </LineChart>
           </ResponsiveContainer>
         </div>
