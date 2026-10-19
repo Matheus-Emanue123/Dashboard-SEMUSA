@@ -21,7 +21,7 @@ function LineStatusBars() {
           <div key={line.linha} className="status-bars__row">
             <p className="status-bars__label">{line.linha}</p>
             <div className="status-bars__track">
-              {STATUS_SEGMENTS.map((status, index) => {
+              {line.linha === "Materno-Infantil" ? <span>Não avaliado</span> : STATUS_SEGMENTS.map((status, index) => {
                 const style = STATUS_STYLES[status];
                 return (
                   <div

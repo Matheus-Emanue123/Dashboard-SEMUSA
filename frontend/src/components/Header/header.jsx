@@ -6,6 +6,9 @@ function Header({
   locations = ["Município de Divinópolis"],
   location = "Município de Divinópolis",
   onLocationChange,
+  period = "Jan/2025",
+  updatedAt = "10/02/2025",
+  locationUnavailable = false,
 }) {
   return (
     <header className="main-header">
@@ -25,6 +28,8 @@ function Header({
           </svg>
           <select
             className="filter-select"
+            disabled={locationUnavailable}
+            title={locationUnavailable ? "Os resultados importados não possuem recorte por local." : undefined}
             value={location}
             onChange={(event) => onLocationChange?.(event.target.value)}
           >
@@ -43,7 +48,7 @@ function Header({
             <line x1="8" y1="2" x2="8" y2="6" />
             <line x1="3" y1="10" x2="21" y2="10" />
           </svg>
-          <span>Período: <strong>Jan/2025</strong></span>
+          <span>Período: <strong>{period}</strong></span>
         </div>
 
         <div className="header-info">
@@ -51,7 +56,7 @@ function Header({
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
           </svg>
-          <span>Atualizado: <strong>10/02/2025</strong></span>
+          <span>Atualizado: <strong>{updatedAt}</strong></span>
         </div>
       </div>
     </header>
