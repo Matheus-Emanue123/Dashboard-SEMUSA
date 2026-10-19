@@ -3,6 +3,7 @@ import { STATUS_STYLES } from "../../services/overviewDashboard";
 import SectionHeading from "./SectionHeading";
 
 function AttentionList() {
+  const alerts = ALERT_INDICATORS.filter(item => item.line !== "Materno-Infantil");
   return (
     <article className="dashboard-panel attention-list">
       <SectionHeading
@@ -11,7 +12,7 @@ function AttentionList() {
       />
 
       <ul className="attention-list__items">
-        {ALERT_INDICATORS.length ? ALERT_INDICATORS.map((item) => {
+        {alerts.length ? alerts.map((item) => {
           const status = STATUS_STYLES.alert;
           const value = item.unit && !item.value.endsWith(item.unit)
             ? `${item.value} ${item.unit}`

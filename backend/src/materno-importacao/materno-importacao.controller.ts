@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Controller,
+  Get,
   ParseFilePipeBuilder,
   Post,
   UploadedFile,
@@ -19,6 +20,11 @@ const ASSINATURA_ZIP = Buffer.from([0x50, 0x4b, 0x03, 0x04]);
 @Controller('materno-infantil')
 export class MaternoImportacaoController {
   constructor(private readonly service: MaternoImportacaoService) {}
+
+  @Get('resultados')
+  resultados() {
+    return this.service.resultados();
+  }
 
   @Post('importar')
   @Roles('OPERADOR')
