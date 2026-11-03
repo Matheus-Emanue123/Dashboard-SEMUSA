@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import { MaternoResultsProvider } from "./contexts/MaternoResultsContext";
+import { useMaternoResults } from "./hooks/useMaternoResults";
 import Sidebar from "./components/Sidebar/sidebar";
 import Header from "./components/Header/header";
 import IndicatorSheet from "./components/IndicatorSheet/IndicatorSheet";
@@ -46,6 +48,7 @@ function renderPage(page, onSelectLine, onOpenSheet, isAdmin) {
 
 function AuthenticatedApp() {
   const { session, loading, role, logout } = useAuth();
+  const { indicators: maternoIndicators } = useMaternoResults();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activePage, setActivePage] = useState("Visão Geral");
   const [location, setLocation] = useState(LOCATION_OPTIONS[0]);
@@ -87,6 +90,9 @@ function AuthenticatedApp() {
     return <TrocaSenhaInicial onConcluido={troca.refetch} />;
   }
 
+  const maternoActive = activePage === "Materno-Infantil";
+  const maternoPeriods = [...new Set(maternoIndicators.filter(item => item.period !== "Sem dados").map(item => item.period))];
+  const maternoUpdatedAt = maternoIndicators.map(item => item.updatedAt).filter(Boolean).sort().slice(-1)[0];
   const meta = PAGE_META[activePage] ?? PAGE_META["Visão Geral"];
 
   return (
@@ -105,6 +111,13 @@ function AuthenticatedApp() {
           locations={LOCATION_OPTIONS}
           location={location}
           onLocationChange={setLocation}
+          {...(maternoActive ? {
+            period: maternoPeriods.length === 1 ? maternoPeriods[0] : maternoPeriods.length ? "Por indicador" : "Sem dados",
+            updatedAt: maternoUpdatedAt ? new Date(maternoUpdatedAt).toLocaleDateString("pt-BR") : "Sem dados",
+            locationUnavailable: true,
+            locations: ["Sem recorte por local"],
+            location: "Sem recorte por local",
+          } : {})}
         />
 
         <main className="content-body">
@@ -113,7 +126,7 @@ function AuthenticatedApp() {
       </div>
 
       <IndicatorSheet
-        indicator={selectedIndicator}
+        indicator={selectedIndicator?.line === "Materno-Infantil" ? maternoIndicators.find(item => item.id === selectedIndicator.id) ?? null : selectedIndicator}
         onClose={() => setSelectedIndicator(null)}
       />
     </div>
@@ -123,7 +136,9 @@ function AuthenticatedApp() {
 function App() {
   return (
     <AuthProvider>
-      <AuthenticatedApp />
+      <MaternoResultsProvider>
+        <AuthenticatedApp />
+      </MaternoResultsProvider>
     </AuthProvider>
   );
 }

@@ -3,7 +3,11 @@ import { useEffect } from "react";
 import { STATUS_DESCRIPTIONS, STATUS_STYLES } from "../../services/overviewDashboard";
 import StatusBadge from "../StatusBadge/StatusBadge";
 
-const TRACEABILITY = (indicator) => [
+const TRACEABILITY = (indicator) => indicator.realData ? [
+  { color: "#1d4e8a", label: "Período de referência", value: indicator.period },
+  { color: "#2bbac2", label: "Última importação", value: indicator.updatedAt ? new Date(indicator.updatedAt).toLocaleString("pt-BR") : "Sem dados" },
+  { color: "#6b7280", label: "Relatório de origem", value: indicator.source },
+] : [
   { color: "#2bbac2", label: "Última atualização", value: indicator.period },
   { color: "#1d4e8a", label: "Período de referência", value: indicator.period },
   { color: "#d97706", label: "Histórico de correções", value: "Nenhum" },
@@ -37,7 +41,7 @@ function IndicatorSheet({ indicator, onClose }) {
     { label: "Definição e propósito", value: indicator.definition },
     { label: "Fórmula de cálculo", value: indicator.formula, mono: true },
     { label: "Frequência de mensuração", value: indicator.frequency },
-    { label: "Fonte e granularidade", value: `${indicator.source} — município/unidade/equipe` },
+    { label: "Fonte e granularidade", value: indicator.realData ? `${indicator.source} — atendimento/detalhamento, sem dimensão UBS` : `${indicator.source} — município/unidade/equipe` },
     { label: "Estratificações e limitações", value: indicator.limitations, warn: true },
   ];
 
