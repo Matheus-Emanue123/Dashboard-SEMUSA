@@ -50,18 +50,30 @@ export class AdminUsersService {
     const pageSize = Math.min(MAX_PAGE_SIZE, Math.max(1, Number(q.pageSize) || 20));
     const inicio = (page - 1) * pageSize;
 
-    let query = this.supabase.client
-      .from('perfis')
-      .select(COLUNAS, { count: 'exact' })
-      .order('criado_em', { ascending: false })
-      .range(inicio, inicio + pageSize - 1);
-
     // o texto entra num filtro do PostgREST: tira o que mudaria a sintaxe ou os curingas do ilike
     const busca = (q.busca ?? '').replace(/[,()%_\\*]/g, '').trim();
-    if (busca) query = query.or(`nome.ilike.%${busca}%,email.ilike.%${busca}%`);
-    if (q.role) query = query.eq('role', q.role);
+    const filtrar = (query: any) => {
+      if (busca) query = query.or(`nome.ilike.%${busca}%,email.ilike.%${busca}%`);
+      if (q.role) query = query.eq('role', q.role);
+      return query;
+    };
 
-    const { data, count, error } = await query;
+    const { data, count, error } = await filtrar(
+      this.supabase.client
+        .from('perfis')
+        .select(COLUNAS, { count: 'exact' })
+        .order('criado_em', { ascending: false })
+        .range(inicio, inicio + pageSize - 1),
+    );
+
+    if (error?.code === 'PGRST103') {
+      // página além do fim (ex.: o último usuário da última página foi excluído): lista vazia com o total real
+      const { count: total, error: erroTotal } = await filtrar(
+        this.supabase.client.from('perfis').select('id', { count: 'exact', head: true }),
+      );
+      if (erroTotal) throw new InternalServerErrorException('Não foi possível listar os usuários');
+      return { itens: [] as AdminUser[], total: total ?? 0, page, pageSize };
+    }
     if (error) throw new InternalServerErrorException('Não foi possível listar os usuários');
 
     return { itens: (data ?? []) as AdminUser[], total: count ?? 0, page, pageSize };
@@ -222,8 +234,28 @@ export class AdminUsersService {
       throw new ForbiddenException('A troca de senha só pode ser feita pelo administrador');
     }
 
-    await this.atualizarAuth(actor.userId, { password: dto.senha });
-    await this.atualizarPerfil(actor.userId, { deve_trocar_senha: false });
+    // reserva a flag de forma atômica: duas requisições simultâneas não passam juntas pela checagem acima
+    const { data: reservado, error: erroReserva } = await this.supabase.client
+      .from('perfis')
+      .update({ deve_trocar_senha: false })
+      .eq('id', actor.userId)
+      .eq('deve_trocar_senha', true)
+      .select('id');
+    if (erroReserva) throw new InternalServerErrorException('Não foi possível atualizar o perfil');
+    if (!reservado?.length) {
+      throw new ForbiddenException('A troca de senha só pode ser feita pelo administrador');
+    }
+
+    try {
+      await this.atualizarAuth(actor.userId, { password: dto.senha });
+    } catch (erro) {
+      // a senha não mudou: devolve a obrigação de trocar para o usuário poder tentar de novo
+      await this.supabase.client
+        .from('perfis')
+        .update({ deve_trocar_senha: true })
+        .eq('id', actor.userId);
+      throw erro;
+    }
 
     await this.audit.registrar({
       adminId: actor.userId,

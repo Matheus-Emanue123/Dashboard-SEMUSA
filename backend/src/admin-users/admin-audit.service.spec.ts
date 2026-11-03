@@ -14,9 +14,9 @@ describe('AdminAuditService', () => {
 
     await service.registrar({
       adminId: 'admin-1',
-      adminEmail: 'admin@semusa.gov.br',
+      adminEmail: 'admin.teste@example.com',
       alvoId: 'alvo-1',
-      alvoEmail: 'maria@semusa.gov.br',
+      alvoEmail: 'usuario.teste@example.com',
       operacao: 'ALTERAR_PAPEL',
       detalhes: { de: 'OPERADOR', para: 'GESTOR' },
     });
@@ -24,9 +24,9 @@ describe('AdminAuditService', () => {
     expect(from).toHaveBeenCalledWith('auditoria_admin');
     expect(insert).toHaveBeenCalledWith({
       admin_id: 'admin-1',
-      admin_email: 'admin@semusa.gov.br',
+      admin_email: 'admin.teste@example.com',
       alvo_id: 'alvo-1',
-      alvo_email: 'maria@semusa.gov.br',
+      alvo_email: 'usuario.teste@example.com',
       operacao: 'ALTERAR_PAPEL',
       detalhes: { de: 'OPERADOR', para: 'GESTOR' },
     });
