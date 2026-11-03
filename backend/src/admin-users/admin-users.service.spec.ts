@@ -8,12 +8,12 @@ import {
 import { Logger } from '@nestjs/common';
 import { AdminUsersService } from './admin-users.service';
 
-const ADMIN = { userId: 'admin-1', email: 'admin@semusa.gov.br' };
+const ADMIN = { userId: 'admin-1', email: 'admin.teste@example.com' };
 
 const perfil = (over: object = {}) => ({
   id: 'u-1',
-  nome: 'Maria Souza',
-  email: 'maria@semusa.gov.br',
+  nome: 'Usuário Teste',
+  email: 'usuario.teste@example.com',
   role: 'OPERADOR',
   unidade_saude: null,
   ativo: true,
@@ -56,8 +56,8 @@ const ok = (data: any) => ({ data, error: null });
 
 describe('AdminUsersService.criar', () => {
   const dto: any = {
-    nome: 'Maria Souza',
-    email: '  Maria@Semusa.GOV.br ',
+    nome: 'Usuário Teste',
+    email: '  Usuario.Teste@Example.COM ',
     role: 'OPERADOR',
     senha: 'SenhaTemp#123',
   };
@@ -69,20 +69,20 @@ describe('AdminUsersService.criar', () => {
 
     expect(admin.createUser).toHaveBeenCalledWith(
       expect.objectContaining({
-        email: 'maria@semusa.gov.br',
+        email: 'usuario.teste@example.com',
         password: 'SenhaTemp#123',
         email_confirm: true,
         app_metadata: { role: 'OPERADOR' },
       }),
     );
     expect(builders[0].update).toHaveBeenCalledWith(
-      expect.objectContaining({ deve_trocar_senha: true, nome: 'Maria Souza' }),
+      expect.objectContaining({ deve_trocar_senha: true, nome: 'Usuário Teste' }),
     );
     expect(audit.registrar).toHaveBeenCalledWith(
       expect.objectContaining({
         adminId: 'admin-1',
         alvoId: 'u-1',
-        alvoEmail: 'maria@semusa.gov.br',
+        alvoEmail: 'usuario.teste@example.com',
         operacao: 'CRIAR_USUARIO',
       }),
     );
@@ -239,7 +239,7 @@ describe('AdminUsersService.redefinirSenha', () => {
 });
 
 describe('AdminUsersService.trocarSenhaInicial', () => {
-  const actor = { userId: 'u-1', email: 'maria@semusa.gov.br' };
+  const actor = { userId: 'u-1', email: 'usuario.teste@example.com' };
 
   it('lança ForbiddenException quando deve_trocar_senha é false', async () => {
     const { service, admin } = makeEnv([ok(perfil({ deve_trocar_senha: false }))]);
@@ -253,7 +253,7 @@ describe('AdminUsersService.trocarSenhaInicial', () => {
   it('troca a senha, zera a flag e audita TROCA_SENHA_INICIAL quando a flag é true', async () => {
     const { service, admin, builders, audit } = makeEnv([
       ok(perfil({ deve_trocar_senha: true })),
-      ok(null),
+      ok([{ id: 'u-1' }]),
     ]);
 
     await service.trocarSenhaInicial({ senha: 'OutraSenha#789' }, actor);
@@ -265,11 +265,36 @@ describe('AdminUsersService.trocarSenhaInicial', () => {
     );
     expect(JSON.stringify(audit.registrar.mock.calls)).not.toContain('OutraSenha#789');
   });
+
+  it('lança ForbiddenException e não troca a senha quando outra requisição já consumiu a flag (corrida)', async () => {
+    const { service, admin, audit } = makeEnv([
+      ok(perfil({ deve_trocar_senha: true })),
+      ok([]), // a atualização condicional não achou linha com a flag ainda ligada
+    ]);
+
+    await expect(service.trocarSenhaInicial({ senha: 'OutraSenha#789' }, actor)).rejects.toBeInstanceOf(
+      ForbiddenException,
+    );
+    expect(admin.updateUserById).not.toHaveBeenCalled();
+    expect(audit.registrar).not.toHaveBeenCalled();
+  });
+
+  it('religa a flag e lança erro quando o Auth não consegue trocar a senha', async () => {
+    const { service, builders } = makeEnv(
+      [ok(perfil({ deve_trocar_senha: true })), ok([{ id: 'u-1' }]), ok(null)],
+      { updateUserById: jest.fn().mockResolvedValue({ data: null, error: { message: 'falhou' } }) },
+    );
+
+    await expect(service.trocarSenhaInicial({ senha: 'OutraSenha#789' }, actor)).rejects.toBeInstanceOf(
+      InternalServerErrorException,
+    );
+    expect(builders[2].update).toHaveBeenCalledWith({ deve_trocar_senha: true });
+  });
 });
 
 describe('AdminUsersService.excluir', () => {
   it('audita EXCLUIR_USUARIO com nome, e-mail e papel antes de apagar a conta no Auth', async () => {
-    const { service, admin, audit } = makeEnv([ok(perfil({ nome: 'Maria Souza', role: 'GESTOR' }))]);
+    const { service, admin, audit } = makeEnv([ok(perfil({ nome: 'Usuário Teste', role: 'GESTOR' }))]);
 
     await service.excluir('u-1', ADMIN);
 
@@ -277,8 +302,8 @@ describe('AdminUsersService.excluir', () => {
       expect.objectContaining({
         operacao: 'EXCLUIR_USUARIO',
         alvoId: 'u-1',
-        alvoEmail: 'maria@semusa.gov.br',
-        detalhes: expect.objectContaining({ nome: 'Maria Souza', role: 'GESTOR' }),
+        alvoEmail: 'usuario.teste@example.com',
+        detalhes: expect.objectContaining({ nome: 'Usuário Teste', role: 'GESTOR' }),
       }),
     );
     expect(admin.deleteUser).toHaveBeenCalledWith('u-1');
@@ -352,6 +377,25 @@ describe('AdminUsersService.listar', () => {
     await service.listar({ page: 1, pageSize: 20, busca: ',()%' } as any);
 
     expect(builders[0].or).not.toHaveBeenCalled();
+  });
+
+  it('devolve a página vazia com o total real quando a página pedida passou do fim (PGRST103)', async () => {
+    const { service } = makeEnv([
+      { data: null, count: null, error: { code: 'PGRST103', message: 'Requested range not satisfiable' } },
+      { data: null, count: 21, error: null },
+    ]);
+
+    const r = await service.listar({ page: 3, pageSize: 20 } as any);
+
+    expect(r).toEqual({ itens: [], total: 21, page: 3, pageSize: 20 });
+  });
+
+  it('continua lançando erro quando a consulta falha por outro motivo', async () => {
+    const { service } = makeEnv([{ data: null, count: null, error: { code: 'XX000', message: 'boom' } }]);
+
+    await expect(service.listar({ page: 1, pageSize: 20 } as any)).rejects.toBeInstanceOf(
+      InternalServerErrorException,
+    );
   });
 
   it('filtra por papel quando informado', async () => {

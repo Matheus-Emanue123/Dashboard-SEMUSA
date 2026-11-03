@@ -3,8 +3,8 @@ import { ROLES_KEY } from '../auth/roles.decorator';
 import { AdminUsersController } from './admin-users.controller';
 import { FirstAccessController } from './first-access.controller';
 
-const user = { userId: 'admin-1', email: 'admin@semusa.gov.br', role: 'ADMIN' };
-const actor = { userId: 'admin-1', email: 'admin@semusa.gov.br' };
+const user = { userId: 'admin-1', email: 'admin.teste@example.com', role: 'ADMIN' };
+const actor = { userId: 'admin-1', email: 'admin.teste@example.com' };
 
 function makeService() {
   return {
@@ -60,13 +60,13 @@ describe('FirstAccessController', () => {
   it('trocarSenhaInicial repassa o usuário logado como actor', async () => {
     const service = makeService();
     const c = new FirstAccessController(service as any);
-    const maria = { userId: 'u-1', email: 'maria@semusa.gov.br', role: 'OPERADOR' };
+    const usuario = { userId: 'u-1', email: 'usuario.teste@example.com', role: 'OPERADOR' };
 
-    await c.trocarSenhaInicial({ senha: 'OutraSenha#789' }, maria);
+    await c.trocarSenhaInicial({ senha: 'OutraSenha#789' }, usuario);
 
     expect(service.trocarSenhaInicial).toHaveBeenCalledWith(
       { senha: 'OutraSenha#789' },
-      { userId: 'u-1', email: 'maria@semusa.gov.br' },
+      { userId: 'u-1', email: 'usuario.teste@example.com' },
     );
   });
 });

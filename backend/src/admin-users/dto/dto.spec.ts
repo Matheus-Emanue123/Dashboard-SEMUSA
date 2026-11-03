@@ -5,8 +5,8 @@ import { CreateUserDto } from './create-user.dto';
 import { ListUsersQuery } from './list-users.query';
 
 const valido = {
-  nome: 'Maria Souza',
-  email: 'maria@semusa.gov.br',
+  nome: 'Usuário Teste',
+  email: 'usuario.teste@example.com',
   role: 'OPERADOR',
   senha: '1234567890',
 };

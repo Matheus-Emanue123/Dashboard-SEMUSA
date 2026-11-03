@@ -36,7 +36,12 @@ export default function AdminUsuarios() {
     setCarregando(true);
     setErro("");
     try {
-      setDados(await listUsers({ page, pageSize: PAGE_SIZE, busca: buscaAplicada, role }));
+      const resposta = await listUsers({ page, pageSize: PAGE_SIZE, busca: buscaAplicada, role });
+      setDados(resposta);
+      // a página pedida ficou vazia (ex.: o último usuário dela foi excluído): volta para a última que existe
+      if (resposta.itens.length === 0 && page > 1 && resposta.total > 0) {
+        setPage(Math.ceil(resposta.total / PAGE_SIZE));
+      }
     } catch (err) {
       setErro(err.message || "Não foi possível carregar os usuários.");
     } finally {
