@@ -27,7 +27,7 @@ export class MaternoImportacaoController {
   }
 
   @Post('importar')
-  @Roles('OPERADOR')
+  @Roles('OPERADOR', 'ADMIN')
   @UseInterceptors(FileInterceptor('arquivo', { limits: { fileSize: 5 * 1024 * 1024 } }))
   importar(
     @UploadedFile(new ParseFilePipeBuilder().build({ fileIsRequired: true }))

@@ -7,6 +7,6 @@ import { AuditMiddleware } from './audit.middleware';
 })
 export class AuditModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuditMiddleware).forRoutes('*');
+    consumer.apply(AuditMiddleware).forRoutes('{*splat}');
   }
 }

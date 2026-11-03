@@ -6,6 +6,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { MaternoImportacaoModule } from './materno-importacao/materno-importacao.module';
 import { AuthModule } from './auth/auth.module';
 import { AuditModule } from './audit/audit.module';
+import { AdminUsersModule } from './admin-users/admin-users.module';
 
 @Module({
   imports: [
@@ -18,7 +19,8 @@ import { AuditModule } from './audit/audit.module';
     AuthModule,
     AuditModule,
     DashboardModule,
-    MaternoImportacaoModule
+    AdminUsersModule,
+    MaternoImportacaoModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })

@@ -141,6 +141,10 @@ export const PAGE_META = {
     title: "Catálogo de Indicadores",
     subtitle: "Catálogo das fichas oficiais · filtro por linha e situação",
   },
+  "Administração de Acessos": {
+    title: "Administração de Acessos",
+    subtitle: "Cadastro de servidores, papéis, bloqueio e redefinição de senha",
+  },
 };
 
 export const LINE_STATUS = [
