@@ -11,7 +11,7 @@
     "test:integracao": "nest build && node --test test/*.cjs"
   },
   "dependencies": {
-    "@nestjs/common": "^11.2.7",
+    "@nestjs/common": "^11.2.8",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.2.7",
     "@nestjs/passport": "^11.0.5",
