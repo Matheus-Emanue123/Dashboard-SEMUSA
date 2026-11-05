@@ -45,6 +45,22 @@ function Sidebar({ isCollapsed, setIsCollapsed, activeItem: activeItemProp, onSe
     },
     { id: "ODS", label: "ODS", type: "img", icon: globeIcon },
     { id: "Catálogo", label: "Catálogo", type: "img", icon: listIcon },
+    // só o ADMIN vê; a barreira de verdade está no backend (@Roles('ADMIN'))
+    ...(role === "ADMIN"
+      ? [
+          {
+            id: "Administração de Acessos",
+            label: "Administração de Acessos",
+            type: "svg",
+            icon: (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 2l8 3v6c0 5-3.4 9.4-8 11-4.6-1.6-8-6-8-11V5l8-3z" />
+                <path d="M9 12l2 2 4-4" />
+              </svg>
+            ),
+          },
+        ]
+      : []),
   ];
 
   return (

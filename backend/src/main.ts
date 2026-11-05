@@ -1,3 +1,4 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
@@ -15,6 +16,8 @@ async function bootstrap() {
     origin: origins?.length ? origins : process.env.NODE_ENV !== 'production',
   });
   app.setGlobalPrefix('api');
+  // valida os DTOs e descarta campos que não estão declarados neles
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);

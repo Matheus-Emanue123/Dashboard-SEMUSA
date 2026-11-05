@@ -19,9 +19,9 @@ import {
 
 function MaternoInfantil({ onOpenSheet }) {
   const { hasRole, loading } = useAuth();
+  const canImport = !loading && hasRole("OPERADOR", "ADMIN");
   const { indicators, reload, error: resultsError, loading: resultsLoading } = useMaternoResults();
   const prioritized = MATERNO_PRIORITIZED_IDS.map(id => indicators.find(item => item.id === id));
-  const canImport = !loading && hasRole("OPERADOR");
   const fileInput = useRef(null);
   const sending = useRef(false);
   const [importing, setImporting] = useState(false);
@@ -59,7 +59,7 @@ function MaternoInfantil({ onOpenSheet }) {
     } catch (error) {
       let message;
       if (error.status === 401) message = "Sua sessão expirou. Entre novamente para importar.";
-      else if (error.status === 403) message = "Somente usuários com perfil OPERADOR podem importar planilhas.";
+      else if (error.status === 403) message = "Somente usuários com perfil OPERADOR ou ADMIN podem importar planilhas.";
       else if (error.status === 413) message = "O arquivo excede o limite de 5 MiB.";
       else if (error.status >= 500) message = "Erro interno ao importar. A importação pode não ter sido concluída; consulte o responsável antes de reenviar.";
       else if (!error.status) message = "Não foi possível conectar ao servidor. Verifique sua conexão. Se o envio já começou, confirme o resultado antes de reenviar.";
