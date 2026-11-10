@@ -42,14 +42,19 @@ export class MaternoImportacaoService {
     try {
       await wb.xlsx.load(buffer as any);
     } catch {
-      throw new BadRequestException('Não foi possível abrir o arquivo. Envie um .xlsx válido.');
+      throw new BadRequestException({
+        message: 'Não foi possível abrir o arquivo. Envie um .xlsx válido.',
+        tipo: 'arquivo',
+      });
     }
 
     let leitura;
     try {
       leitura = lerPlanilha(wb, new Date().toISOString());
     } catch (e) {
-      if (e instanceof PlanilhaInvalidaError) throw new BadRequestException(e.message);
+      if (e instanceof PlanilhaInvalidaError) {
+        throw new BadRequestException({ message: e.message, ...e.detalhes });
+      }
       throw e;
     }
 
@@ -57,11 +62,15 @@ export class MaternoImportacaoService {
     if (leitura.erros.length > 0) {
       throw new BadRequestException({
         message: 'A planilha tem linhas com erro. Nada foi importado.',
+        tipo: 'linhas',
         erros: leitura.erros,
       });
     }
     if (leitura.linhas.length === 0) {
-      throw new BadRequestException('Nenhuma linha de dados encontrada na planilha.');
+      throw new BadRequestException({
+        message: 'Nenhuma linha de dados encontrada na planilha.',
+        tipo: 'vazia',
+      });
     }
 
     for (let i = 0; i < leitura.linhas.length; i += TAMANHO_LOTE) {
