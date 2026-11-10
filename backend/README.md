@@ -173,6 +173,45 @@ As mesmas regras são aplicadas às linhas do quadrimestre, antes da divisão.
 
 `CRITERIOS_RN_RISCO`, `CRI_MENOR_5`, `CRI_6_A_9` permanecem armazenados e fora
 da resposta. Não há associação por nome nem mudança no parser ou no schema.
+
+## Coleta automática dos painéis Power BI da VIEP
+
+O módulo `src/powerbi-viep/` busca os indicadores 1 a 12 da linha materno-infantil
+nos painéis públicos da Vigilância Epidemiológica de Divinópolis e grava em
+`materno_resultados` (mesma tabela e mesma chave única da planilha), com
+`tipo_atendimento = 'Geral'`, `detalhamento = 'Sem detalhamento'` e
+`relatorio_fonte = 'Painel VIEP - <painel>'`.
+
+- **Quando roda:** toda segunda às 6h (America/Sao_Paulo), via `@nestjs/schedule`.
+  `POST /api/materno-infantil/viep/sincronizar` (OPERADOR ou ADMIN) roda na hora.
+- **Configuração:** `VIEP_ANO_INICIAL` (padrão 2026) e `VIEP_SINCRONIZACAO_ATIVA=false`
+  para desligar o agendamento.
+- **Como busca:** usa a mesma API que a página pública do Power BI chama
+  (`modelsAndExploration` e `querydata`), sem navegador. Não é uma API documentada:
+  se mudar, o indicador afetado falha com erro no log e nada é gravado para ele.
+- **Granularidade:** mensal, com numerador e denominador gravados, então mensal e
+  quadrimestral seguem a mesma regra de soma dos componentes. A razão de mortalidade
+  materna só existe por ano no painel e é exibida como série anual.
+- **Datas:** nenhum período posterior ao mês da última atualização do painel é gravado;
+  `data_registro` guarda essa data de atualização.
+
+| Item | Código | ID catálogo | Painel | Conta |
+| --- | --- | --- | --- | --- |
+| 1 | VIEP_SIFILIS_GESTANTE | mi02 | Sífilis | casos em gestante (por notificação) / nascidos vivos × 1.000 |
+| 2 | VIEP_SIFILIS_CONGENITA | mi03 | Sífilis | casos congênitos (por diagnóstico) / nascidos vivos × 1.000 |
+| 3 | VIEP_AIDS_MENOR_1_ANO | mi04 | Aids | casos em crianças com idade SINAN < 1 ano (contagem) |
+| 4 | VIEP_MORTALIDADE_INFANTIL | mi05 | Mortalidade Infantil | óbitos infantis / nascidos vivos × 1.000 |
+| 5 | VIEP_MORTALIDADE_MATERNA | mi06 | Óbito Materno | óbitos maternos / nascidos vivos × 100 mil (anual) |
+| 6 | VIEP_GRAVIDEZ_ADOLESCENCIA | mi07 | Nascidos Vivos | mães de 10 a 19 anos / nascidos × 100 |
+| 7 | VIEP_PARTOS_NORMAIS | — | Nascidos Vivos | partos vaginais / nascidos × 100 |
+| 8 | VIEP_PARTOS_CESAREOS | — | Nascidos Vivos | cesáreos / nascidos × 100 |
+| 9 | VIEP_BAIXO_PESO | mi09 | Nascidos Vivos | peso < 2.500 g / nascidos × 100 |
+| 10 | VIEP_PREMATURIDADE | mi10 | Nascidos Vivos | < 37 semanas / nascidos × 100 |
+| 11 | VIEP_7_CONSULTAS_PRENATAL | mi13 | Nascidos Vivos | faixa "7 ou mais" / total (inclui "Ignorado") × 100 |
+| 12 | VIEP_PRENATAL_ATE_12_SEMANAS | mi31 | Nascidos Vivos | início do pré-natal no 1º ao 3º mês / total × 100 |
+
+Os partos (7 e 8) ficam gravados mas fora da resposta enquanto `mi08` vier da planilha.
+O item 12 é uma aproximação: o painel só registra o mês de gestação do início do pré-natal.
 O OpenAPI do ambiente de desenvolvimento confirmou as colunas da tabela;
 a inspeção SQL de índices foi negada pela conexão MCP disponível. Nenhuma
 migration foi criada. O upsert mantém a chave existente

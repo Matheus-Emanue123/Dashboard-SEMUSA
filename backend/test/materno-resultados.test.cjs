@@ -5,7 +5,11 @@ const row = (extra = {}) => ({ periodo_referencia: '2026-08-01', codigo_indicado
 const indicator = (rows, id = 'mi37') => construirResultados(rows).indicators.find(x => x.id === id);
 
 test('mapeamento explícito e códigos não suportados', () => {
-  assert.deepEqual(Object.fromEntries(Object.entries(MAPEAMENTO_MATERNO).map(([code, x]) => [code, x.id])), { 2017:'mi37', 2097:'mi38', 2103:'mi35', 2015:'mi34', 2014:'mi36', PORTA_MEDICO:'mi32', PA_PREPARTO:'mi33', ICSAP:'mi12', PARTOS:'mi08' });
+  assert.deepEqual(Object.fromEntries(Object.entries(MAPEAMENTO_MATERNO).map(([code, x]) => [code, x.id])), { 2017:'mi37', 2097:'mi38', 2103:'mi35', 2015:'mi34', 2014:'mi36', PORTA_MEDICO:'mi32', PA_PREPARTO:'mi33', ICSAP:'mi12', PARTOS:'mi08',
+    VIEP_SIFILIS_GESTANTE:'mi02', VIEP_SIFILIS_CONGENITA:'mi03', VIEP_AIDS_MENOR_1_ANO:'mi04', VIEP_MORTALIDADE_INFANTIL:'mi05', VIEP_MORTALIDADE_MATERNA:'mi06',
+    VIEP_GRAVIDEZ_ADOLESCENCIA:'mi07', VIEP_BAIXO_PESO:'mi09', VIEP_PREMATURIDADE:'mi10', VIEP_7_CONSULTAS_PRENATAL:'mi13', VIEP_PRENATAL_ATE_12_SEMANAS:'mi31' });
+  // Partos do Power BI ficam fora da tela enquanto mi08 vier da planilha.
+  assert.equal(MAPEAMENTO_MATERNO.VIEP_PARTOS_NORMAIS, undefined);
   for (const code of ['CRITERIOS_RN_RISCO', 'CRI_MENOR_5', 'CRI_6_A_9', 'mi37']) assert.equal(indicator([row({ codigo_indicador: code })]).latest, null);
 });
 test('razão ponderada, escala percentual e exclusão de totais/subconjuntos', () => {
@@ -60,4 +64,29 @@ test('mês sem atendimentos não impede consolidação quando os componentes sã
   const r = indicator([row({periodo_referencia:'2026-07-01',numerador:0,denominador:0}),row()]);
   assert.equal(r.monthly[0].value,null);
   assert.equal(r.quadrimester[0].value,50);
+});
+
+const viep = (extra = {}) => row({ codigo_indicador: 'VIEP_PREMATURIDADE', tipo_atendimento: 'Geral', relatorio_fonte: 'Painel VIEP - Nascidos Vivos', ...extra });
+test('VIEP: razão ponderada só com tipo Geral e escala por mil', () => {
+  const r = indicator([viep({ numerador: 21, denominador: 223 }), viep({ tipo_atendimento: 'SUS', numerador: 999, denominador: 1 })], 'mi10');
+  assert.equal(r.latest.value, 21 / 223 * 100);
+  assert.equal(r.frequency, 'Mensal');
+  assert.deepEqual(r.sources, ['Painel VIEP - Nascidos Vivos']);
+  const s = indicator([row({ codigo_indicador: 'VIEP_SIFILIS_GESTANTE', tipo_atendimento: 'Geral', numerador: 6, denominador: 2000 })], 'mi02');
+  assert.equal(s.latest.value, 3);
+});
+test('VIEP: contagem de Aids soma casos, inclusive zero', () => {
+  const aids = (p, n) => row({ codigo_indicador: 'VIEP_AIDS_MENOR_1_ANO', tipo_atendimento: 'Geral', periodo_referencia: p, numerador: n, denominador: null, resultado: n });
+  const r = indicator([aids('2026-05-01', 0), aids('2026-06-01', 1), aids('2026-07-01', 2), aids('2026-08-01', 0)], 'mi04');
+  assert.equal(r.latest.value, 0);
+  assert.equal(r.quadrimester.find(q => q.period === '2026-05').value, 3);
+});
+test('VIEP: mortalidade materna é anual, sem quadrimestres', () => {
+  const om = (p, n, d) => row({ codigo_indicador: 'VIEP_MORTALIDADE_MATERNA', tipo_atendimento: 'Geral', periodo_referencia: p, numerador: n, denominador: d });
+  const r = indicator([om('2024-01-01', 4, 2326), om('2025-01-01', 0, 2560)], 'mi06');
+  assert.equal(r.frequency, 'Anual');
+  assert.deepEqual(r.monthly.map(m => [m.period, m.label]), [['2024', '2024'], ['2025', '2025']]);
+  assert.equal(r.monthly[0].value, 4 / 2326 * 100000);
+  assert.equal(r.latest.value, 0);
+  assert.deepEqual(r.quadrimester, []);
 });
