@@ -102,7 +102,7 @@ test('importação HTTP com autenticação e autorização reais', async (t) => 
       const res = await get(token(role));
       assert.equal(res.status,200);
       const body = await res.json();
-      assert.equal(body.indicators.length,9);
+      assert.equal(body.indicators.length,19);
       assert.ok(body.indicators.every(x=>x.latest===null));
     }
   });
