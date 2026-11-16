@@ -10,7 +10,9 @@
     "test": "jest",
     "test:integracao": "nest build && node --test test/*.cjs",
     "viep:simular": "node scripts/simular-viep.cjs",
-    "viep:sincronizar": "node scripts/sincronizar-viep.cjs"
+    "viep:sincronizar": "node scripts/sincronizar-viep.cjs",
+    "ieps:simular": "node scripts/simular-ieps.cjs",
+    "ieps:sincronizar": "node scripts/sincronizar-ieps.cjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.8",
