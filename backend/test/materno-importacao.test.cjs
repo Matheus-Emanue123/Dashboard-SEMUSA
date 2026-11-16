@@ -142,9 +142,44 @@ test('importação HTTP com autenticação e autorização reais', async (t) => 
       assert.equal((await post(options)).status, 400);
     }
   });
+  await t.test('arquivo que não é .xlsx informa tipo "arquivo"', async () => {
+    for (const options of [{ bytes: valid, filename: 'dados.csv' }, { bytes: Buffer.from('invalid') }]) {
+      assert.equal((await post(options)).body.tipo, 'arquivo');
+    }
+  });
+  await t.test('abas ausentes são listadas uma a uma', async () => {
+    const wb = new Workbook();
+    wb.addWorksheet('Cadastro Indicadores').addRow(['periodo_referencia']);
+    const result = await post({ bytes: await wb.xlsx.writeBuffer() });
+    assert.equal(result.status, 400);
+    assert.equal(result.body.tipo, 'abas');
+    assert.deepEqual(result.body.abasEsperadas, ['Cadastro Indicadores', 'Referência']);
+    assert.deepEqual(result.body.abasAusentes, ['Referência']);
+  });
+  await t.test('colunas ausentes são listadas com a aba', async () => {
+    const wb = new Workbook();
+    wb.addWorksheet('Referência').addRows([['codigo_indicador', 'unidade_medida'], ['MI01', '%']]);
+    wb.addWorksheet('Cadastro Indicadores').addRow(['periodo_referencia', 'codigo_indicador', 'resultado_informado', 'numerador', 'denominador', 'justificativa_observacao', 'relatorio_fonte', 'data_do_registro', 'area_responsavel', 'situacao_do_dado']);
+    const result = await post({ bytes: await wb.xlsx.writeBuffer() });
+    assert.equal(result.status, 400);
+    assert.equal(result.body.tipo, 'colunas');
+    assert.equal(result.body.aba, 'Cadastro Indicadores');
+    assert.deepEqual(result.body.colunasAusentes, ['tipo_atendimento', 'detalhamento']);
+  });
+  await t.test('cabeçalho não encontrado informa aba e coluna', async () => {
+    const wb = new Workbook();
+    wb.addWorksheet('Referência').addRows([['codigo_indicador', 'unidade_medida']]);
+    wb.addWorksheet('Cadastro Indicadores').addRow(['outra_coisa']);
+    const result = await post({ bytes: await wb.xlsx.writeBuffer() });
+    assert.deepEqual(
+      { tipo: result.body.tipo, aba: result.body.aba, coluna: result.body.coluna },
+      { tipo: 'cabecalho', aba: 'Cadastro Indicadores', coluna: 'periodo_referencia' },
+    );
+  });
   await t.test('erros por linha e nenhuma gravação após validação inválida', async () => {
     const result = await post({ bytes: await workbook(true).xlsx.writeBuffer() });
     assert.equal(result.status, 400);
+    assert.equal(result.body.tipo, 'linhas');
     assert.deepEqual(result.body.erros, [{ linha: 2, motivo: 'tipo_atendimento vazio' }]);
     assert.equal(writes.length, 1);
   });

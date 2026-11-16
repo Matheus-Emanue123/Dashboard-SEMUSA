@@ -7,6 +7,8 @@ import { MATERNO_PRIORITIZED_IDS } from "../../services/maternoResults";
 import CoverageChart from "../Dashboard/CoverageChart";
 import SectionHeading from "../Dashboard/SectionHeading";
 import JourneyStrip from "../../components/JourneyStrip/JourneyStrip";
+import ImportErrorDialog from "../../components/ImportErrorDialog/ImportErrorDialog";
+import { describeImportError } from "../../services/importError";
 import IndicatorGrid from "../../components/IndicatorGrid/IndicatorGrid";
 import IndicatorBrowser from "../../components/IndicatorBrowser/IndicatorBrowser";
 import { MATERNO_JOURNEY } from "../../services/linePages";
@@ -26,6 +28,7 @@ function MaternoInfantil({ onOpenSheet }) {
   const sending = useRef(false);
   const [importing, setImporting] = useState(false);
   const [feedback, setFeedback] = useState(null);
+  const [importError, setImportError] = useState(null);
   const [stage, setStage] = useState("all");
   const staged = useMemo(
     () => decorateWithStage(indicators, LINE_MATERNO),
@@ -39,12 +42,14 @@ function MaternoInfantil({ onOpenSheet }) {
     if (!file || !canImport || sending.current) return;
 
     setFeedback(null);
+    setImportError(null);
+    const fail = (error) => setImportError({ details: describeImportError(error), fileName: file.name });
     if (!/\.xlsx$/i.test(file.name)) {
-      setFeedback({ error: true, message: "Selecione um arquivo .xlsx válido." });
+      fail({ tipo: "arquivo" });
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      setFeedback({ error: true, message: "O arquivo excede o limite de 5 MiB." });
+      fail({ tipo: "tamanho" });
       return;
     }
 
@@ -57,14 +62,7 @@ function MaternoInfantil({ onOpenSheet }) {
       await reload();
       setFeedback({ message: `Importação concluída: ${result.importadas} linhas importadas e ${result.ignoradas} ignoradas.` });
     } catch (error) {
-      let message;
-      if (error.status === 401) message = "Sua sessão expirou. Entre novamente para importar.";
-      else if (error.status === 403) message = "Somente usuários com perfil OPERADOR ou ADMIN podem importar planilhas.";
-      else if (error.status === 413) message = "O arquivo excede o limite de 5 MiB.";
-      else if (error.status >= 500) message = "Erro interno ao importar. A importação pode não ter sido concluída; consulte o responsável antes de reenviar.";
-      else if (!error.status) message = "Não foi possível conectar ao servidor. Verifique sua conexão. Se o envio já começou, confirme o resultado antes de reenviar.";
-      else message = error.message || "Não foi possível importar a planilha.";
-      setFeedback({ error: true, message, errors: Array.isArray(error.erros) ? error.erros : [] });
+      fail(error);
     } finally {
       sending.current = false;
       setImporting(false);
@@ -120,16 +118,17 @@ function MaternoInfantil({ onOpenSheet }) {
           )}
         </div>
         {feedback && (
-          <div role={feedback.error ? "alert" : "status"} style={{ marginBlock: "12px", overflowWrap: "anywhere" }}>
+          <div role="status" style={{ marginBlock: "12px", overflowWrap: "anywhere" }}>
             <p>{feedback.message}</p>
-            {feedback.errors?.length > 0 && (
-              <ul style={{ maxHeight: "240px", overflowY: "auto" }}>
-                {feedback.errors.map((error, index) => (
-                  <li key={`${error.linha}-${index}`}>Linha {error.linha}: {error.motivo}</li>
-                ))}
-              </ul>
-            )}
           </div>
+        )}
+        {importError && (
+          <ImportErrorDialog
+            details={importError.details}
+            fileName={importError.fileName}
+            onClose={() => setImportError(null)}
+            onRetry={() => fileInput.current?.click()}
+          />
         )}
         <JourneyStrip
           steps={MATERNO_JOURNEY}

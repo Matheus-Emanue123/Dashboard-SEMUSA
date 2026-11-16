@@ -21,6 +21,7 @@ export async function apiFetch(path, options = {}) {
     const err = new Error(body.message || `Erro ${res.status} na API`);
     err.status = res.status;
     err.erros = body.erros;
+    err.body = body;
     throw err;
   }
 

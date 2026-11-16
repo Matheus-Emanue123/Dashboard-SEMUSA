@@ -34,10 +34,13 @@ export class MaternoImportacaoController {
     arquivo: Express.Multer.File,
   ) {
     if (!/\.xlsx$/i.test(arquivo.originalname)) {
-      throw new BadRequestException('Envie um arquivo .xlsx válido.');
+      throw new BadRequestException({ message: 'Envie um arquivo .xlsx válido.', tipo: 'arquivo' });
     }
     if (!arquivo.buffer.subarray(0, 4).equals(ASSINATURA_ZIP)) {
-      throw new BadRequestException('Conteúdo do arquivo não corresponde a um .xlsx válido.');
+      throw new BadRequestException({
+        message: 'Conteúdo do arquivo não corresponde a um .xlsx válido.',
+        tipo: 'arquivo',
+      });
     }
     return this.service.importar(arquivo.buffer);
   }

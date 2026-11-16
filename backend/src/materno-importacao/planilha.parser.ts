@@ -1,6 +1,17 @@
 import { Cell, Workbook, Worksheet } from 'exceljs';
 
-export class PlanilhaInvalidaError extends Error {}
+// Detalhes estruturados de uma planilha fora do padrão: o frontend usa estes campos para
+// apontar exatamente o que falta (abas, colunas) em vez de exibir só a mensagem em texto.
+export type DetalhesPlanilhaInvalida =
+  | { tipo: 'abas'; abasEsperadas: string[]; abasAusentes: string[] }
+  | { tipo: 'cabecalho'; aba: string; coluna: string }
+  | { tipo: 'colunas'; aba: string; colunasAusentes: string[] };
+
+export class PlanilhaInvalidaError extends Error {
+  constructor(message: string, readonly detalhes: DetalhesPlanilhaInvalida) {
+    super(message);
+  }
+}
 
 export interface LinhaResultado {
   periodo_referencia: string;
@@ -124,6 +135,7 @@ function mapearColunas(ws: Worksheet, colunaChave: string) {
   }
   throw new PlanilhaInvalidaError(
     `Cabeçalho não encontrado na aba "${ws.name}" (coluna ${colunaChave}).`,
+    { tipo: 'cabecalho', aba: ws.name, coluna: colunaChave },
   );
 }
 
@@ -132,6 +144,7 @@ function lerUnidades(ws: Worksheet): Map<string, string | null> {
   if (!colunas['unidade_medida']) {
     throw new PlanilhaInvalidaError(
       `Coluna unidade_medida não encontrada na aba "${ws.name}".`,
+      { tipo: 'colunas', aba: ws.name, colunasAusentes: ['unidade_medida'] },
     );
   }
   const unidades = new Map<string, string | null>();
@@ -151,6 +164,11 @@ export function lerPlanilha(wb: Workbook, agora: string): ResultadoLeitura {
   if (!dados || !referencia) {
     throw new PlanilhaInvalidaError(
       `O arquivo precisa ter as abas "${ABA_DADOS}" e "${ABA_REFERENCIA}".`,
+      {
+        tipo: 'abas',
+        abasEsperadas: [ABA_DADOS, ABA_REFERENCIA],
+        abasAusentes: [!dados && ABA_DADOS, !referencia && ABA_REFERENCIA].filter((a): a is string => !!a),
+      },
     );
   }
 
@@ -160,7 +178,11 @@ export function lerPlanilha(wb: Workbook, agora: string): ResultadoLeitura {
 
   const faltando = COLUNAS_DADOS.filter((c) => !colunas[c]);
   if (faltando.length) {
-    throw new PlanilhaInvalidaError(`Colunas ausentes: ${faltando.join(', ')}.`);
+    throw new PlanilhaInvalidaError(`Colunas ausentes: ${faltando.join(', ')}.`, {
+      tipo: 'colunas',
+      aba: dados.name,
+      colunasAusentes: faltando,
+    });
   }
 
   const linhas: LinhaResultado[] = [];
