@@ -3,7 +3,7 @@ import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Workbook } from 'exceljs';
 import { lerPlanilha, PlanilhaInvalidaError, LinhaResultado } from './planilha.parser';
 
-import { construirResultados, MAPEAMENTO_MATERNO } from './materno-resultados';
+import { construirResultados, CODIGOS_RESULTADOS } from './materno-resultados';
 
 const TAMANHO_LOTE = 500;
 const CHAVE_UNICA = 'periodo_referencia,codigo_indicador,tipo_atendimento,detalhamento';
@@ -27,7 +27,7 @@ export class MaternoImportacaoService {
     for (let offset = 0; ; offset += TAMANHO_LOTE) {
       const { data, error } = await this.supabase.from('materno_resultados')
         .select('periodo_referencia,codigo_indicador,tipo_atendimento,detalhamento,resultado,numerador,denominador,relatorio_fonte,atualizado_em')
-        .in('codigo_indicador', Object.keys(MAPEAMENTO_MATERNO))
+        .in('codigo_indicador', CODIGOS_RESULTADOS)
         .order('periodo_referencia').order('codigo_indicador').order('tipo_atendimento').order('detalhamento')
         .range(offset, offset + TAMANHO_LOTE - 1);
       if (error) throw new InternalServerErrorException('Não foi possível consultar os resultados materno-infantis.');

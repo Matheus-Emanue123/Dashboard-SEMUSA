@@ -22,7 +22,9 @@ export function applyMaternoResults(catalog, response) {
       limitations: 'Resumo limitado às categorias suportadas das fontes importadas (planilha e painéis VIEP). Sem avaliação de meta ou tendência.',
       realData: true,
       updatedAt: result?.updatedAt ?? null,
-      history: result ? { monthly: result.monthly, quadrimester: result.quadrimester } : { monthly: [], quadrimester: [] },
+      history: result ? { monthly: result.monthly, quadrimester: result.quadrimester, annual: result.annual ?? [] } : { monthly: [], quadrimester: [], annual: [] },
+      // Linhas anuais de MG e Brasil (IEPS Data), quando o indicador tem equivalente.
+      comparison: result?.comparison ?? null,
       historyUnit: result?.unit ?? indicator.unit,
     };
   });

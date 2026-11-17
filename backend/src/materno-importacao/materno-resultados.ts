@@ -10,6 +10,8 @@ interface ConfigIndicador {
   agregacao?: 'soma';
   // 'anual': a fonte só publica um valor por ano (gravado em janeiro).
   periodicidade?: 'anual';
+  // Código IEPS_* equivalente: alimenta a série anual de Divinópolis e as linhas de MG e Brasil.
+  ieps?: string;
 }
 
 // Contrato canônico da planilha e dos códigos VIEP. Nunca inferir IDs por nome do indicador.
@@ -22,19 +24,29 @@ export const MAPEAMENTO_MATERNO: Record<string, ConfigIndicador> = {
   '2014': { id: 'mi36', unit: '%', scale: 100 },
   PORTA_MEDICO: { id: 'mi32', unit: 'minutos', scale: 1 },
   PA_PREPARTO: { id: 'mi33', unit: 'minutos', scale: 1 },
-  ICSAP: { id: 'mi12', unit: '%', scale: 100 },
+  ICSAP: { id: 'mi12', unit: '%', scale: 100, ieps: 'IEPS_ICSAP' },
   PARTOS: { id: 'mi08', unit: '%', scale: 100 },
   VIEP_SIFILIS_GESTANTE: { id: 'mi02', unit: 'por 1.000 NV', scale: 1000, origem: 'viep' },
   VIEP_SIFILIS_CONGENITA: { id: 'mi03', unit: 'por 1.000 NV', scale: 1000, origem: 'viep' },
   VIEP_AIDS_MENOR_1_ANO: { id: 'mi04', unit: 'casos', scale: 1, origem: 'viep', agregacao: 'soma' },
-  VIEP_MORTALIDADE_INFANTIL: { id: 'mi05', unit: 'por 1.000 NV', scale: 1000, origem: 'viep' },
+  VIEP_MORTALIDADE_INFANTIL: { id: 'mi05', unit: 'por 1.000 NV', scale: 1000, origem: 'viep', ieps: 'IEPS_MORTALIDADE_INFANTIL' },
   VIEP_MORTALIDADE_MATERNA: { id: 'mi06', unit: 'por 100 mil NV', scale: 100000, origem: 'viep', periodicidade: 'anual' },
   VIEP_GRAVIDEZ_ADOLESCENCIA: { id: 'mi07', unit: '%', scale: 100, origem: 'viep' },
-  VIEP_BAIXO_PESO: { id: 'mi09', unit: '%', scale: 100, origem: 'viep' },
-  VIEP_PREMATURIDADE: { id: 'mi10', unit: '%', scale: 100, origem: 'viep' },
-  VIEP_7_CONSULTAS_PRENATAL: { id: 'mi13', unit: '%', scale: 100, origem: 'viep' },
-  VIEP_PRENATAL_ATE_12_SEMANAS: { id: 'mi31', unit: '%', scale: 100, origem: 'viep' },
+  VIEP_BAIXO_PESO: { id: 'mi09', unit: '%', scale: 100, origem: 'viep', ieps: 'IEPS_BAIXO_PESO' },
+  VIEP_PREMATURIDADE: { id: 'mi10', unit: '%', scale: 100, origem: 'viep', ieps: 'IEPS_PREMATURIDADE' },
+  VIEP_7_CONSULTAS_PRENATAL: { id: 'mi13', unit: '%', scale: 100, origem: 'viep', ieps: 'IEPS_7_CONSULTAS_PRENATAL' },
+  VIEP_PRENATAL_ATE_12_SEMANAS: { id: 'mi31', unit: '%', scale: 100, origem: 'viep', ieps: 'IEPS_PRENATAL_1_TRIMESTRE' },
 };
+
+// Códigos a buscar no banco: os do dashboard e os IEPS_* usados no comparativo.
+export const CODIGOS_RESULTADOS = [...Object.keys(MAPEAMENTO_MATERNO),
+  ...Object.values(MAPEAMENTO_MATERNO).flatMap(c => c.ieps ? [c.ieps] : [])];
+
+// Locais gravados pelo módulo ieps-data no detalhamento.
+const IEPS_MUNICIPIO = 'Divinópolis';
+const IEPS_ESTADO = 'Minas Gerais';
+const IEPS_PAIS = 'Brasil';
+const FONTE_IEPS = 'IEPS Data';
 
 type Row = Pick<LinhaResultado, 'periodo_referencia' | 'codigo_indicador' | 'tipo_atendimento' | 'detalhamento' | 'numerador' | 'denominador' | 'resultado' | 'relatorio_fonte' | 'atualizado_em'>;
 
@@ -91,17 +103,52 @@ function agregar(codigo: string, rows: Row[], scale: number) {
 const monthFormatter = new Intl.DateTimeFormat('pt-BR', { month: 'short', timeZone: 'UTC' });
 const monthName = (year: number, month: number) => monthFormatter.format(new Date(Date.UTC(year, month - 1, 1))).replace('.', '');
 
-// Fonte com um valor por ano: série anual, sem quadrimestres. O ano corrente é parcial.
-function resultadoAnual(codigo: string, config: ConfigIndicador, selected: Row[]) {
+// Valor anual publicado pelo IEPS para um local, na escala do indicador. Ano → valor.
+function anuaisIeps(rows: Row[], local: string, scale: number) {
+  const valores = new Map<string, number>();
+  for (const r of rows) {
+    if (r.detalhamento !== local || !Number.isFinite(r.numerador) || !Number.isFinite(r.denominador) || !r.denominador) continue;
+    valores.set(r.periodo_referencia.slice(0, 4), r.numerador! / r.denominador! * scale);
+  }
+  return valores;
+}
+
+// Série anual de Divinópolis. Ano publicado pelo IEPS usa o valor do IEPS (mesma metodologia de
+// MG e Brasil, ano fechado); os demais anos consolidam os nossos dados. Ano incompleto ou
+// corrente é parcial.
+function serieAnual(codigo: string, config: ConfigIndicador, selected: Row[], ieps: Row[]) {
   const anoAtual = new Date().getUTCFullYear();
-  const anos = [...new Set(selected.map(r => r.periodo_referencia.slice(0, 4)))].sort();
-  const annual = anos.map(ano => {
-    const partial = Number(ano) >= anoAtual;
-    return { period: ano, label: `${ano}${partial ? ' · parcial' : ''}`, partial,
-      ...agregar(codigo, selected.filter(r => r.periodo_referencia.startsWith(ano)), config.scale) };
+  const doIeps = anuaisIeps(ieps, IEPS_MUNICIPIO, config.scale);
+  const anos = [...new Set([...selected.map(r => r.periodo_referencia.slice(0, 4)), ...doIeps.keys()])].sort();
+  return anos.map(ano => {
+    if (doIeps.has(ano)) {
+      return { period: ano, label: ano, partial: false, source: FONTE_IEPS, value: doIeps.get(ano)!, normal: null, cesareo: null };
+    }
+    const doAno = selected.filter(r => r.periodo_referencia.startsWith(ano));
+    const meses = new Set(doAno.map(r => r.periodo_referencia.slice(0, 7))).size;
+    const partial = Number(ano) >= anoAtual || (config.periodicidade !== 'anual' && meses < 12);
+    return { period: ano, label: `${ano}${partial ? ' · parcial' : ''}`, partial, source: null, ...agregar(codigo, doAno, config.scale) };
   });
-  return { id: config.id, code: codigo, unit: config.unit, latest: annual.slice(-1)[0] ?? null,
-    monthly: annual, quadrimester: [], sources: [...new Set(selected.map(r => r.relatorio_fonte).filter(Boolean))],
+}
+
+// Linhas de MG e Brasil (IEPS Data), anuais. null quando o indicador não tem equivalente.
+function comparativo(config: ConfigIndicador, ieps: Row[]) {
+  if (!config.ieps) return null;
+  const serie = (local: string) => [...anuaisIeps(ieps, local, config.scale)].sort(([a], [b]) => a.localeCompare(b))
+    .map(([period, value]) => ({ period, label: period, value }));
+  const state = serie(IEPS_ESTADO);
+  const country = serie(IEPS_PAIS);
+  if (!state.length && !country.length) return null;
+  return { source: FONTE_IEPS, state, country };
+}
+
+// Fonte com um valor por ano: série anual, sem quadrimestres. O ano corrente é parcial.
+function resultadoAnual(codigo: string, config: ConfigIndicador, selected: Row[], ieps: Row[]) {
+  const annual = serieAnual(codigo, config, selected, ieps);
+  const local = annual.filter(a => a.source === null);
+  return { id: config.id, code: codigo, unit: config.unit, latest: local.slice(-1)[0] ?? null,
+    monthly: local, quadrimester: [], annual, comparison: comparativo(config, ieps),
+    sources: [...new Set(selected.map(r => r.relatorio_fonte).filter(Boolean))],
     updatedAt: selected.map(r => r.atualizado_em).sort().slice(-1)[0] ?? null,
     frequency: 'Anual', parameter: null, status: 'unevaluated', trend: null };
 }
@@ -110,7 +157,8 @@ export function construirResultados(rows: Row[]) {
   return { indicators: Object.entries(MAPEAMENTO_MATERNO).map(([codigo, config]) => {
     const imported = rows.filter(r => r.codigo_indicador === codigo);
     const selected = selecionar(codigo, imported);
-    if (config.periodicidade === 'anual') return resultadoAnual(codigo, config, selected);
+    const ieps = config.ieps ? rows.filter(r => r.codigo_indicador === config.ieps && r.tipo_atendimento === 'Geral') : [];
+    if (config.periodicidade === 'anual') return resultadoAnual(codigo, config, selected, ieps);
     // Preservar também meses sem resumo calculável; não ressuscitar um valor antigo.
     const months = [...new Set(imported.map(r => r.periodo_referencia.slice(0, 7)))].sort();
     const monthly = months.map(month => {
@@ -131,7 +179,7 @@ export function construirResultados(rows: Row[]) {
         ...agregar(codigo, validMonths ? selected.filter(r => included.includes(r.periodo_referencia.slice(0, 7))) : [], config.scale) };
     });
     return { id: config.id, code: codigo, unit: config.unit, latest: monthly.slice(-1)[0] ?? null,
-      monthly, quadrimester, sources: [...new Set(selected.map(r => r.relatorio_fonte).filter(Boolean))],
+      monthly, quadrimester, annual: serieAnual(codigo, config, selected, ieps), comparison: comparativo(config, ieps), sources: [...new Set(selected.map(r => r.relatorio_fonte).filter(Boolean))],
       updatedAt: selected.map(r => r.atualizado_em).sort().slice(-1)[0] ?? null,
       frequency: 'Mensal', parameter: null, status: 'unevaluated', trend: null };
   }) };

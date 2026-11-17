@@ -90,3 +90,39 @@ test('VIEP: mortalidade materna é anual, sem quadrimestres', () => {
   assert.equal(r.latest.value, 0);
   assert.deepEqual(r.quadrimester, []);
 });
+
+const ieps = (codigo, ano, detalhamento, numerador, denominador = 100) => row({ codigo_indicador: codigo, periodo_referencia: `${ano}-01-01`, tipo_atendimento: 'Geral', detalhamento, numerador, denominador, resultado: numerador / denominador, relatorio_fonte: 'IEPS Data' });
+test('IEPS: códigos equivalentes entram na consulta e só nos indicadores mapeados', () => {
+  const { CODIGOS_RESULTADOS } = require('../dist/materno-importacao/materno-resultados');
+  for (const code of ['IEPS_BAIXO_PESO', 'IEPS_PREMATURIDADE', 'IEPS_7_CONSULTAS_PRENATAL', 'IEPS_PRENATAL_1_TRIMESTRE', 'IEPS_MORTALIDADE_INFANTIL', 'IEPS_ICSAP']) assert.ok(CODIGOS_RESULTADOS.includes(code), code);
+  assert.equal(indicator([ieps('IEPS_BAIXO_PESO', 2024, 'Minas Gerais', 10)], 'mi37').comparison, null);
+});
+test('IEPS: MG e Brasil na escala do indicador; Divinópolis do IEPS nos anos fechados e nossos dados nos demais', () => {
+  const rows = [
+    ieps('IEPS_PREMATURIDADE', 2023, 'Divinópolis', 11.2), ieps('IEPS_PREMATURIDADE', 2024, 'Divinópolis', 12),
+    ieps('IEPS_PREMATURIDADE', 2023, 'Minas Gerais', 11.9), ieps('IEPS_PREMATURIDADE', 2024, 'Brasil', 12.4),
+    viep({ periodo_referencia: '2026-01-01', numerador: 21, denominador: 200 }), viep({ periodo_referencia: '2026-02-01', numerador: 19, denominador: 200 }),
+  ];
+  const r = indicator(rows, 'mi10');
+  assert.deepEqual(r.comparison.state.map(x => [x.period, x.value]), [['2023', 11.9]]);
+  assert.deepEqual(r.comparison.country.map(x => [x.period, x.value]), [['2024', 12.4]]);
+  assert.equal(r.comparison.source, 'IEPS Data');
+  assert.deepEqual(r.annual.map(x => [x.period, x.source, x.partial]), [['2023', 'IEPS Data', false], ['2024', 'IEPS Data', false], ['2026', null, true]]);
+  assert.equal(r.annual[1].value, 12);
+  assert.equal(r.annual[2].value, 40 / 400 * 100);
+  assert.equal(r.annual[2].label, '2026 · parcial');
+  // IEPS não altera o mensal nem as fontes do card.
+  assert.deepEqual(r.monthly.map(x => x.period), ['2026-01', '2026-02']);
+  assert.deepEqual(r.sources, ['Painel VIEP - Nascidos Vivos']);
+});
+test('IEPS: mortalidade infantil por mil e ICSAP como razão das taxas', () => {
+  const mi = indicator([ieps('IEPS_MORTALIDADE_INFANTIL', 2024, 'Minas Gerais', 11.5, 1000)], 'mi05');
+  assert.equal(mi.comparison.state[0].value, 11.5);
+  assert.deepEqual(mi.comparison.country, []);
+  const icsap = indicator([ieps('IEPS_ICSAP', 2025, 'Brasil', 1200, 6000)], 'mi12');
+  assert.equal(icsap.comparison.country[0].value, 20);
+});
+test('ano local completo e passado não é parcial', () => {
+  const r = indicator(Array.from({ length: 12 }, (_, i) => viep({ periodo_referencia: `2025-${String(i + 1).padStart(2, '0')}-01`, numerador: 1, denominador: 10 })), 'mi10');
+  assert.deepEqual(r.annual.map(x => [x.label, x.partial, x.value]), [['2025', false, 10]]);
+});

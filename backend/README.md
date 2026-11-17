@@ -224,3 +224,37 @@ A formatação está em `services/maternoResults.js`. Os seis cards priorizados
 mantêm os respectivos indicadores do catálogo, atualmente sem fonte importada.
 Os widgets de cobertura por etapa/UBS e status ficam indisponíveis: não há
 componentes, dimensão UBS ou parâmetros que legitimem os cálculos.
+
+## Coleta comparativa do IEPS Data (Divinópolis × MG × Brasil)
+
+O módulo `src/ieps-data/` busca no [IEPS Data](https://iepsdata.org.br) os indicadores
+que também temos de Divinópolis, para o comparativo estadual e federal (issue #36).
+Grava em `materno_resultados` com `tipo_atendimento = 'Geral'`,
+`detalhamento = 'Divinópolis' | 'Minas Gerais' | 'Brasil'` (o nível geográfico) e
+`relatorio_fonte = 'IEPS Data'`. Os códigos começam com `IEPS_` e ainda não aparecem
+no dashboard (não estão no `MAPEAMENTO_MATERNO`).
+
+- **Quando roda:** todo dia 5, às 6h (America/Sao_Paulo).
+  `POST /api/materno-infantil/ieps/sincronizar` (OPERADOR ou ADMIN) roda na hora.
+  `IEPS_SINCRONIZACAO_ATIVA=false` desliga o agendamento.
+- **Testar sem gravar:** `npm run build && npm run ieps:simular`.
+  **Gravar uma vez:** `npm run build && npm run ieps:sincronizar`.
+- **Como busca:** uma chamada a
+  `https://iepsdata.org.br/wp-json/caleidosapi/get_csv?ano=todos&tipo=todos&indicador=...`
+  (o mesmo endereço do botão "Download de dados"; cerca de 15 MB). Não é uma API
+  documentada. O IEPS ignora em silêncio nomes de indicador desconhecidos, então se
+  uma coluna esperada não vier a coleta falha inteira e nada é gravado.
+- **Granularidade:** anual, gravado como `AAAA-01-01`. Numerador e denominador guardam
+  o valor publicado e a escala (ex.: 10,57 e 100), e `resultado` é a fração crua.
+- **Ano repetido:** quando o DATASUS ainda não fechou um ano, o IEPS repete o valor do
+  ano anterior (ex.: SINASC 2025 = 2024). Um ano idêntico ao anterior no mesmo local
+  não é gravado.
+
+| Código | Equivale a | Variável IEPS | Conta |
+| --- | --- | --- | --- |
+| IEPS_BAIXO_PESO | mi09 | pct_baixo_peso | % nascidos vivos < 2.500 g |
+| IEPS_PREMATURIDADE | mi10 | pct_prematuro | % nascidos vivos < 37 semanas |
+| IEPS_7_CONSULTAS_PRENATAL | mi13 | pct_prenatal_7m | % nascidos vivos com 7+ consultas |
+| IEPS_PRENATAL_1_TRIMESTRE | mi31 | pct_prenatal_1tri | % nascidos vivos com início no 1º trimestre |
+| IEPS_MORTALIDADE_INFANTIL | mi05 | tx_mort_inf_ibge | por 1.000 NV (só MG e Brasil; o IEPS não publica por município) |
+| IEPS_ICSAP | mi12 | tx_hosp_csap ÷ tx_hosp | % das internações que são por CSAP |

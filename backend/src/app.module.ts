@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { AuditModule } from './audit/audit.module';
 import { AdminUsersModule } from './admin-users/admin-users.module';
 import { PowerBiViepModule } from './powerbi-viep/powerbi-viep.module';
+import { IepsDataModule } from './ieps-data/ieps-data.module';
 
 @Module({
   imports: [
@@ -26,6 +27,8 @@ import { PowerBiViepModule } from './powerbi-viep/powerbi-viep.module';
     // job semanal que coleta os indicadores dos painéis Power BI da VIEP
     ScheduleModule.forRoot(),
     PowerBiViepModule,
+    // job mensal que coleta indicadores comparativos (Divinópolis, MG e Brasil) do IEPS Data
+    IepsDataModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
