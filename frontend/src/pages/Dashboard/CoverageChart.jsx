@@ -7,29 +7,57 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  Legend,
 } from "recharts";
 
 import { CATALOG_INDICATORS } from "../../services/catalogIndicators";
 import { INDICATOR_HISTORY, buildIndicatorSeries, formatIndicatorValue } from "../../services/indicatorHistory";
+import { buildComparisonData } from "../../services/comparisonSeries";
 import { useMaternoResults } from "../../hooks/useMaternoResults";
 import SectionHeading from "./SectionHeading";
 
 const GRANULARITIES = [
   { id: "quadrimester", label: "Quadrimestral" },
   { id: "monthly", label: "Mensal" },
+  { id: "annual", label: "Anual", maternoOnly: true },
 ];
+
+const PERIOD_NOTES = {
+  quadrimester: "quadrimestres (jan–abr, mai–ago, set–dez)",
+  monthly: "meses",
+  annual: "anos",
+};
+
+const LEGEND_ORDER = ["value", "state", "country"];
+const MAIN_COLOR = "#1d8fa8";
+const COMPARISON_STYLE = {
+  state: { stroke: "#d9822b", strokeDasharray: "6 4" },
+  country: { stroke: "#7b61c9", strokeDasharray: "2 4" },
+};
 
 function CoverageChart({ maternoOnly = false }) {
   const { indicators: maternoIndicators, error, loading } = useMaternoResults();
-  const [granularity, setGranularity] = useState("quadrimester");
+  const [selectedGranularity, setGranularity] = useState("quadrimester");
+  const [compare, setCompare] = useState(false);
   const [indicatorId, setIndicatorId] = useState(maternoOnly ? "mi37" : INDICATOR_HISTORY[0]?.indicatorId ?? "");
   const availableIndicators = maternoOnly ? maternoIndicators : CATALOG_INDICATORS.map(item => item.line === "Materno-Infantil" ? maternoIndicators.find(real => real.id === item.id) : item);
   const indicator = availableIndicators.find((item) => item.id === indicatorId);
   const isMaterno = indicator?.line === "Materno-Infantil";
+  const granularities = GRANULARITIES.filter((option) => isMaterno || !option.maternoOnly);
+  // A visão anual só existe para os resultados importados; nos demais volta ao quadrimestral.
+  const granularity = granularities.some((option) => option.id === selectedGranularity) ? selectedGranularity : "quadrimester";
   const series = isMaterno ? null : INDICATOR_HISTORY.find((item) => item.indicatorId === indicatorId);
-  const data = useMemo(() => isMaterno ? indicator?.history?.[granularity] ?? [] : buildIndicatorSeries(series, granularity), [isMaterno, indicator, series, granularity]);
+  const baseData = useMemo(() => isMaterno ? indicator?.history?.[granularity] ?? [] : buildIndicatorSeries(series, granularity), [isMaterno, indicator, series, granularity]);
+  const comparison = isMaterno ? indicator?.comparison ?? null : null;
+  const comparing = compare && Boolean(comparison);
+  const { data, lines: comparisonLines } = useMemo(
+    () => buildComparisonData(baseData, comparing ? comparison : null, granularity),
+    [baseData, comparing, comparison, granularity],
+  );
   const births = indicatorId === "mi08";
-  const hasData = data.some(item => births ? item.normal != null || item.cesareo != null : item.value != null);
+  const hasData = data.some(item => births ? item.normal != null || item.cesareo != null : item.value != null || comparisonLines.some(line => item[line.key] != null));
+  const unit = indicator?.historyUnit ?? indicator?.unit;
+  const lineName = (line) => line.reference ? `${line.name} (${line.reference.label})` : line.name;
 
   return (
     <article className="dashboard-panel">
@@ -53,7 +81,7 @@ function CoverageChart({ maternoOnly = false }) {
             ))}
           </select>
           <div className="evolution-chart__granularity" role="group" aria-label="Granularidade do período">
-            {GRANULARITIES.map((option) => (
+            {granularities.map((option) => (
               <button
                 key={option.id}
                 type="button"
@@ -65,13 +93,26 @@ function CoverageChart({ maternoOnly = false }) {
               </button>
             ))}
           </div>
+          {comparison && (
+            <label className="evolution-chart__compare">
+              <input type="checkbox" checked={compare} onChange={(event) => setCompare(event.target.checked)} />
+              Comparar com Minas Gerais e Brasil
+            </label>
+          )}
         </div>
       </div>
 
       <p className="evolution-chart__period-note" aria-live="polite">
-        Exibindo {granularity === "quadrimester" ? "quadrimestres (jan–abr, mai–ago, set–dez)" : "meses"}
-        {(indicator?.historyUnit ?? indicator?.unit) ? ` · Unidade: ${indicator.historyUnit ?? indicator.unit}` : ""}
+        Exibindo {PERIOD_NOTES[granularity]}
+        {unit ? ` · Unidade: ${unit}` : ""}
       </p>
+      {comparing && (
+        <p className="evolution-chart__period-note">
+          {granularity === "annual"
+            ? `Minas Gerais e Brasil: ${comparison.source} (anual). Anos fechados de Divinópolis também vêm do ${comparison.source}, para comparar pela mesma metodologia.`
+            : `Minas Gerais e Brasil: último ano publicado pelo ${comparison.source}, como referência. Use a visão Anual para comparar ano a ano.`}
+        </p>
+      )}
 
       {births && <p>Partos normais (azul claro) · Partos cesáreos (azul escuro)</p>}
       {isMaterno && loading && <p role="status">Carregando histórico...</p>}
@@ -85,7 +126,10 @@ function CoverageChart({ maternoOnly = false }) {
               <YAxis width={52} tick={{ fontSize: 11, fill: "#5a7080" }} axisLine={false} tickLine={false} />
               <Tooltip
                 labelFormatter={(label, payload) => payload?.[0]?.payload?.partial ? `${label} (período parcial)` : label}
-                formatter={(value) => formatIndicatorValue(value, indicator?.historyUnit ?? indicator?.unit)}
+                formatter={(value, name, item) => [
+                  formatIndicatorValue(value, unit),
+                  item?.dataKey === "value" && item?.payload?.source ? `${name} (${item.payload.source})` : name,
+                ]}
                 contentStyle={{ border: "1px solid #d0dcea", borderRadius: 8, fontSize: 12 }}
               />
               {births ? <>
@@ -94,13 +138,27 @@ function CoverageChart({ maternoOnly = false }) {
               </> : <Line
                 type="monotone"
                 dataKey="value"
-                name={indicator?.name ?? "Indicador"}
-                stroke="#1d8fa8"
+                name={comparing ? "Divinópolis" : indicator?.name ?? "Indicador"}
+                stroke={MAIN_COLOR}
                 strokeWidth={2.5}
-                dot={{ r: 4, fill: "#1d8fa8" }}
+                dot={{ r: 4, fill: MAIN_COLOR }}
                 activeDot={{ r: 6 }}
                 connectNulls={false}
               />}
+              {!births && comparisonLines.map((line) => (
+                <Line
+                  key={line.key}
+                  type={line.reference ? "linear" : "monotone"}
+                  dataKey={line.key}
+                  name={lineName(line)}
+                  {...COMPARISON_STYLE[line.key]}
+                  strokeWidth={2}
+                  dot={line.reference ? false : { r: 3, fill: COMPARISON_STYLE[line.key].stroke }}
+                  activeDot={{ r: 5 }}
+                  connectNulls
+                />
+              ))}
+              {comparing && !births && <Legend wrapperStyle={{ fontSize: 12 }} iconType="plainline" itemSorter={(item) => LEGEND_ORDER.indexOf(item.dataKey)} />}
             </LineChart>
           </ResponsiveContainer>
         </div>

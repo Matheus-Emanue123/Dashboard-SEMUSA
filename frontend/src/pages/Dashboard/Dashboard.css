@@ -187,6 +187,20 @@
   box-shadow: 0 1px 3px rgb(15 31 53 / 14%);
 }
 
+.evolution-chart__compare {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #33485c;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.evolution-chart__compare input {
+  accent-color: #1d8fa8;
+}
+
 .evolution-chart__period-note {
   margin: 12px 0 0;
   color: #5a7080;
